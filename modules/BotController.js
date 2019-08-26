@@ -96,11 +96,11 @@ var BotController = (cfg) => {
         var servoDnPos = servoMin
         if(dir){
             // lift pen up
-            // console.log('up')
+            console.log('up')
             servo.servoWrite(servoUpPos)
         }else{
             // put pen down
-            // console.log('down')
+            console.log('down')
             servo.servoWrite(servoDnPos)
             // servo.digitalWrite(0)
         }
@@ -198,7 +198,7 @@ var BotController = (cfg) => {
     // DRAWING METHODS
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        // console.log('---------- bc.moveTo',x,y,' ----------')
+         console.log('---------- bc.moveTo',x,y,' ----------')
 
         // convert x,y to l1,l2 (ideal, precise string lengths)
         var X = x + bc.startPos.x

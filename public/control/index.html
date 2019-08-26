@@ -322,7 +322,7 @@
         let pads = document.querySelectorAll('.item');
         for (var i=0; i<pads.length; i++){
             let pad = pads[i];
-            pad.addEventListener('touchstart',handleTouch);
+            pad.addEventListener('click',handleTouch);
         }
 
         function handleTouch(e){
@@ -334,7 +334,7 @@
         }
 
         var pen = document.querySelector('.pen');
-        pen.addEventListener('touchstart',function(e){
+        pen.addEventListener('click',function(e){
             penz = !penz// swap pen position
             var data = {
                 up: penz,
@@ -344,7 +344,7 @@
         });
 
         var home = document.querySelector('.home');
-        home.addEventListener('touchstart',function(e){
+        home.addEventListener('click',function(e){
             var data = {x:0,y:0}
             // data.botID = botID
             socket.emit('moveto', data);
