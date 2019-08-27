@@ -514,7 +514,7 @@
                     var path = "";
                     path = svg.getElementsByTagName('path')[p];
                     data += path.getAttribute('d');
-                    
+                    data += " ";
                     console.log("p:"+ p+ "| path:"+path.getAttribute('d'));
                 }
 
@@ -531,8 +531,8 @@
                     // botID: botID
                 }
 
-                socket.emit('drawart',data);*/
-
+                */
+                socket.emit('drawart', data);
 		    }
 		    reader.readAsText(file);
 
