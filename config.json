@@ -2,15 +2,15 @@
   "botID": "drawbot",
   "swapDirections": false,
   "localPort": 80,
-  "baseDelay": 2,
-  "d": 619,
+  "baseDelay": 1,
+  "d": 630,
   "startPos": {
     "x": 100,
-    "y": 100
+    "y": 150
   },
   "stepsPerMM": [
-    10,
-    10
+    18,
+    18
   ],
   "penPauseDelay": 400,
   "remoteURL": "",
