@@ -507,7 +507,7 @@
 		        svg = ParseXML(evt.target.result);
                 // holder.innerHTML = evt.target.result;
                 
-                svgpaths = svg.getElementsByTagName('path');
+                /*svgpaths = svg.getElementsByTagName('path');
                 console.log("Paths: ", svgpaths.length);
                 var data = "";
                 for (p = 0; p < svgpaths.length; p++) {
@@ -519,19 +519,14 @@
                 }
 
                 console.log(data);
-
+                */
                 /* keep in Mind -> M means MOVE ... Z means End Path and return to first point of path */
 
-                /*var path = svg.getElementsByTagName('path')[0];
-
-                
-
+                var path = svg.getElementsByTagName('path')[0];
                 var data = {
                     path: path.getAttribute('d'),
                     // botID: botID
                 }
-
-                */
                 socket.emit('drawart', data);
 		    }
 		    reader.readAsText(file);
