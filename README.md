@@ -119,7 +119,7 @@ On a device connected to the same local network as the Drawbot Pi:
 * https://github.com/evil-mad/stipplegen 
 *** https://github.com/postspectacular/toxiclibs
 *** http://www.sojamo.de/libraries/controlP5/
-* https://github.com/Scott-Cooper/Drawbot_Death_to_Sharpie
+
 * https://overflower.bleeptrack.de/
 
 * For now, go check out ["TSP Art."](https://wiki.evilmadscientist.com/TSP_art)
