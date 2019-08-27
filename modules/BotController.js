@@ -1,4 +1,10 @@
-var Gpio = require('pigpio').Gpio
+var isPi = require('detect-rpi');
+if (isPi()) {
+    var Gpio = require('pigpio').Gpio
+} else {
+
+}
+
 var cBezier = require('adaptive-bezier-curve')
 var qBezier = require('adaptive-quadratic-curve')
 var svgParse = require('svg-path-parser')
@@ -21,19 +27,27 @@ var BotController = (cfg) => {
     bc.penPause     = config.penPauseDelay    // || 200 // pause for pen up/down movement (in ms)
 
 
-    /////////////////////////////////
-    // GPIO SETUP
-    var gmOut = {mode: Gpio.OUTPUT}
-    var dirPins = [
-        new Gpio(config.pins.leftDir, gmOut),
-        new Gpio(config.pins.rightDir, gmOut)
-    ]
-    var stepPins = [
-        new Gpio(config.pins.leftStep, gmOut),
-        new Gpio(config.pins.rightStep, gmOut)
-    ]
-    // set up servo GPIO pin
-    var servo = new Gpio(config.pins.penServo, gmOut)
+    if (isPi()) {
+        /////////////////////////////////
+        // GPIO SETUP
+        var gmOut = { mode: Gpio.OUTPUT }
+        var dirPins = [
+            new Gpio(config.pins.leftDir, gmOut),
+            new Gpio(config.pins.rightDir, gmOut)
+        ]
+        var stepPins = [
+            new Gpio(config.pins.leftStep, gmOut),
+            new Gpio(config.pins.rightStep, gmOut)
+        ]
+        // set up servo GPIO pin
+        var servo = new Gpio(config.pins.penServo, gmOut)
+    } else {
+        // Setup for debugging if not running on a raspberry
+        var gmOut = {mode: "localdebug"}
+        var dirPins = [config.pins.leftDir, config.pins.rightDir]
+        var stepPins = [config.pins.leftStep, config.pins.rightStep]
+        var servo = config.pins.penServo
+    }
 
 
     /////////////////////////////////
@@ -96,13 +110,12 @@ var BotController = (cfg) => {
         var servoDnPos = servoMin
         if(dir){
             // lift pen up
-            console.log('up')
-            servo.servoWrite(servoUpPos)
+            console.log('Pen: up')
+            if (isPi()) {servo.servoWrite(servoUpPos)}
         }else{
             // put pen down
-            console.log('down')
-            servo.servoWrite(servoDnPos)
-            // servo.digitalWrite(0)
+            console.log('Pen: down')
+            if (isPi()) { servo.servoWrite(servoDnPos) }
         }
     }
     bc.penThen = (dir, callback) => {
@@ -116,19 +129,21 @@ var BotController = (cfg) => {
         }
     }
 
+    
+
     bc.makeStep = (m, d) => {
         // console.log('step',d)
         if(bc._DIRSWAP) d = !d// swap direction if that setting is on
-        dirPins[m].digitalWrite(d)
-        stepPins[m].digitalWrite(1)
+        if (isPi()) { dirPins[m].digitalWrite(d) } 
+        if (isPi()) { stepPins[m].digitalWrite(1) } 
         setTimeout(function(){
-            stepPins[m].digitalWrite(0)
+            if (isPi()) { stepPins[m].digitalWrite(0)}
         },1) 
     }
 
     // TODO: This could move to a python script for faster execution (faster than bc.baseDelay=2 miliseconds)
     bc.rotateBoth = (s1, s2, d1, d2, callback) => {
-        // console.log('bc.rotateBoth',s1,s2,d1,d2)
+        console.log('bc.rotateBoth',s1,s2,d1,d2)
         var steps = Math.round(Math.max(s1,s2))
         var a1 = 0
         var a2 = 0
@@ -137,10 +152,10 @@ var BotController = (cfg) => {
         var doStep = function(){
             if(!bc.paused){
                 setTimeout(function(){
-                    // console.log(stepped,steps)
+                    console.log(stepped,steps)
                     if(stepped<steps){
                         stepped++
-                        // console.log('a1,a2',a1,a2)
+                        console.log('a1,a2',a1,a2)
 
                         a1 += s1
                         if(a1>=steps){
@@ -171,7 +186,7 @@ var BotController = (cfg) => {
     }
 
     bc.rotate = (motorIndex, dirIndex, delay, steps, callback) => {
-        // console.log('bc.rotate',motorIndex, dirIndex, delay, steps)
+        console.log('bc.rotate',motorIndex, dirIndex, delay, steps)
         bc.stepCounts[motorIndex] = Math.round(steps)
         bc.steppeds[motorIndex] = 0
         // var dir = (dirIndex==1) ? 0 : 1// reverses direction
@@ -199,6 +214,10 @@ var BotController = (cfg) => {
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
          console.log('---------- bc.moveTo',x,y,' ----------')
+
+        if(x == 0 && y == 0){
+            console.log("home pressed")
+        }
 
         // convert x,y to l1,l2 (ideal, precise string lengths)
         var X = x + bc.startPos.x
@@ -277,7 +296,21 @@ var BotController = (cfg) => {
     }
 
     bc.pause = () => {
-        bc.paused = true
+        bc.paused = !(bc.paused != false)
+        console.log("paused: ", bc.paused)
+    }
+
+    bc.clearcanvas = () => {
+        // Todo stopping, moving to home position and clearing input
+        console.log("Clearing...")
+    }
+
+    bc.reboot = () => {
+        if (isPi()) {
+            console.log("Reboot pressed -> rebooting RPI ")
+        } else {
+            console.log("Reboot pressed -> NOT rebooting PC")
+        }
     }
 
     bc.drawNextPath = () => {

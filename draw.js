@@ -13,6 +13,14 @@ var BotController = require('./modules/BotController')
 var LocalServer = require('./modules/LocalServer')
 // var BotClient = require('./modules/BotClient') // for optional remote drawbot relay server client
 
+var isPi = require('detect-rpi');
+
+if (isPi()) {
+	console.log('Running on Raspberry Pi!');
+} else {
+	console.log('NOT Running on Raspberry Pi!');
+}
+
 // SETUP
 var botController, botClient, localServer
 var config = Config('config.json', () => {

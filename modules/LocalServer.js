@@ -28,6 +28,7 @@ var LocalServer = (cfg, controller) => {
             c.pen(data.up)
         })
         socket.on('r',function(data){
+            //console.log(Number(data.m), Number(data.dir), Number(data.d), Number(data.steps))
             c.rotate(Number(data.m), Number(data.dir), Number(data.d), Number(data.steps))
         })
         socket.on('drawpath',function(data){
@@ -55,12 +56,21 @@ var LocalServer = (cfg, controller) => {
               strings: c.startStringLengths
           })
         })
+
         socket.on('pause', function(data){
-            pause()
+            c.pause()
         })
+
         socket.on('reboot', function(data){
-            exec('sudo reboot')
+            c.reboot()
         })
+
+        socket.on('clearCanvas', function(data){
+            c.clearcanvas()
+        })
+
+
+
     })
 
     ls.start = () => {
