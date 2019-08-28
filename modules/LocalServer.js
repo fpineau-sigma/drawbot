@@ -7,7 +7,6 @@ var app = express()
 var server = require('http').Server(app)
 var io = require('socket.io')(server)
 var svgParse = require('svg-path-parser')
-var extract = require('extract-svg-path')
 var cheerio = require('cheerio')
 
 var LocalServer = (cfg, controller) => {
@@ -49,6 +48,7 @@ var LocalServer = (cfg, controller) => {
             c.paths = []
             c.drawingPath = false
             c.addPath(fullpath.trim())
+			console.log(fullpath.trim())
 
         })
         socket.on('setStartPos',function(data){
@@ -58,8 +58,10 @@ var LocalServer = (cfg, controller) => {
             c.setD(Number(data.d))
         })
         socket.on('moveto',function(data){
+			
             c.moveTo(data.x,data.y)
-        })
+        
+		})
         socket.on('getDXY', function(data){
             socket.emit('DXY',{
               d: c._D,

@@ -7,7 +7,8 @@ if (isPi()) {
 
 var cBezier = require('adaptive-bezier-curve')
 var qBezier = require('adaptive-quadratic-curve')
-var svgParse = require('svg-path-parser')
+//var svgParse = require('svg-path-parser')
+const {parseSVG, makeAbsolute} = require('svg-path-parser');
 var arcToBezier = require('./arcToBezier')// copied from svg-arc-to-bezier npm library, because it uses es6 import instead of require
 
 var BotController = (cfg) => {
@@ -108,16 +109,21 @@ var BotController = (cfg) => {
         var servoD = servoMax - servoMin
         var servoUpPos = servoMin
         var servoDnPos = servoMin + Math.floor(servoD * 0.35)
-        if (dir) {
+        if (dir == 1) {
             // lift pen up
             console.log('Pen: up')
             if (isPi()) { servo.servoWrite(servoUpPos) }
-        } else {
+        } else if( dir == 0) {
             // put pen down
             console.log('Pen: down')
             if (isPi()) { servo.servoWrite(servoDnPos) }
-        }
+        } else {
+			// lift pen up
+            console.log('Pen: up')
+            if (isPi()) { servo.servoWrite(servoUpPos) }
+		}
     }
+	
     bc.penThen = (dir, callback) => {
         if (dir != bc.penPos) {
             bc.pen(dir)
@@ -143,7 +149,7 @@ var BotController = (cfg) => {
 
     // TODO: This could move to a python script for faster execution (faster than bc.baseDelay=2 miliseconds)
     bc.rotateBoth = (s1, s2, d1, d2, callback) => {
-        console.log('bc.rotateBoth', s1, s2, d1, d2)
+        //console.log('bc.rotateBoth', s1, s2, d1, d2)
         var steps = Math.round(Math.max(s1, s2))
         var a1 = 0
         var a2 = 0
@@ -152,10 +158,10 @@ var BotController = (cfg) => {
         var doStep = function () {
             if (!bc.paused) {
                 setTimeout(function () {
-                    console.log(stepped, steps)
+                    //console.log(stepped, steps)
                     if (stepped < steps) {
                         stepped++
-                        console.log('a1,a2', a1, a2)
+                        //console.log('a1,a2', a1, a2)
 
                         a1 += s1
                         if (a1 >= steps) {
@@ -216,7 +222,8 @@ var BotController = (cfg) => {
         console.log('---------- bc.moveTo', x, y, ' ----------')
 
         if (x == 0 && y == 0) {
-            console.log("home pressed")
+            console.log("-------> homing <-------")
+			
         }
 
         // convert x,y to l1,l2 (ideal, precise string lengths)
@@ -266,23 +273,22 @@ var BotController = (cfg) => {
             bc.pos.y = y
         }
 
-        if (penDir != 0) {
+        //if (penDir != 0) {
             // MOVETO (default)
             // pen up, then
-            bc.penThen(1, doRotation)
-        } else {
+            //bc.penThen(1, doRotation)
+        //} else {
             // LINETO
             doRotation()
-        }
+        //}
 
     }
 
     bc.lineTo = (x, y, callback) => {
-        // pen down, then
-
-        bc.penThen(0, function () {
-            bc.moveTo(Number(x), Number(y), callback, 0)// 0 makes bc.moveTo happen with pen down instead of up
-        })
+        // pen down, then draw line
+        //bc.penThen(0, function () {
+        bc.moveTo(Number(x), Number(y), callback, 0)// 0 makes bc.moveTo happen with pen down instead of up
+        //})
     }
 
 
@@ -302,7 +308,13 @@ var BotController = (cfg) => {
 
     bc.clearcanvas = () => {
         // Todo stopping, moving to home position and clearing input
-        console.log("Clearing...")
+		bc.penThen(1, function () { // 0=down, 1=up
+			cmdCount = 0
+			cmdIndex = 0
+			console.log("Clearing...")
+			bc.drawingPath = false
+			bc.drawNextPath()
+		})
     }
 
     bc.reboot = () => {
@@ -324,12 +336,28 @@ var BotController = (cfg) => {
     bc.drawPath = (pathString) => {
         bc.drawingPath = true
         console.log('drawing path...')
-        var commands = svgParse(pathString)
+        const commands = parseSVG(pathString);
+		makeAbsolute(commands);
         // var commands = pathString.split(/(?=[MmLlHhVvZz])/)
         var cmdCount = commands.length
         console.log(cmdCount)
-        var cmdIndex = 0
+		console.log(commands)
+		
+		
+		var cmdIndex = 0
         var prevCmd
+		
+		/*function longExecFunc(callback, count) {
+
+			for (var j = 0; j < count; j++) {
+				for (var i = 1; i < (1 << 30); i++) {
+					var q = Math.sqrt(1 << 30);
+				}
+			}
+			callback();
+		}*/
+		//longExecFunc(() => { console.log('done!')}, 5); 
+
         function doCommand() {
             if (cmdIndex < cmdCount) {
                 var cmd = commands[cmdIndex]
@@ -351,65 +379,43 @@ var BotController = (cfg) => {
                         // absolute move
                         tox = Number(cmd.x)
                         toy = Number(cmd.y)
-                        bc.moveTo(Number(tox), Number(toy), doCommand)
+						bc.penThen(1, function () { // 0=down, 1=up
+							bc.moveTo(Number(tox), Number(toy), doCommand)
+						})
                         break
                     case 'L':
                         // absolute line
                         tox = Number(cmd.x)
                         toy = Number(cmd.y)
-                        bc.lineTo(Number(tox), Number(toy), doCommand)
-                        break
-                    case 'm':
-                        // relative move
-                        tox += Number(cmd.x)
-                        toy += Number(cmd.y)
-                        bc.moveTo(Number(tox), Number(toy), doCommand)
-                        break
-                    case 'l':
-                        // relative line
-                        tox += Number(cmd.x)
-                        toy += Number(cmd.y)
-                        bc.lineTo(Number(tox), Number(toy), doCommand)
+						bc.penThen(0, function () { // 0=down, 1=up
+							bc.lineTo(Number(tox), Number(toy), doCommand)
+						})
                         break
                     case 'H':
                         // absolute horizontal line
                         tox = Number(cmd.x)
-                        bc.lineTo(Number(tox), Number(toy), doCommand)
-                        break
-                    case 'h':
-                        // relative horizontal line
-                        tox += Number(cmd.x)
-                        bc.lineTo(Number(tox), Number(toy), doCommand)
+						bc.penThen(0, function () { // 0=down, 1=up
+							bc.lineTo(Number(tox), Number(toy), doCommand)
+						})
                         break
                     case 'V':
                         // absolute vertical line
                         toy = Number(cmd.y)
-                        bc.lineTo(Number(tox), Number(toy), doCommand)
-                        break
-                    case 'v':
-                        // relative vertical line
-                        toy += Number(cmd.y)
-                        bc.lineTo(Number(tox), Number(toy), doCommand)
+						bc.penThen(0, function () { // 0=down, 1=up
+							bc.lineTo(Number(tox), Number(toy), doCommand)
+						})
                         break
                     case 'C':
                         // absolute cubic bezier curve
-                        bc.drawCubicBezier(
-                            // [{x:tox,y:toy}, {x:cmd.x1,y:cmd.y1}, {x:cmd.x2,y:cmd.y2}, {x:cmd.x,y:cmd.y}],
-                            // 0.01,
-                            [[tox, toy], [cmd.x1, cmd.y1], [cmd.x2, cmd.y2], [cmd.x, cmd.y]],
-                            1,
-                            doCommand
-                        )
-                        break
-                    case 'c':
-                        // relative cubic bezier curve
-                        bc.drawCubicBezier(
-                            // [{x:tox,y:toy}, {x:tox+cmd.x1,y:toy+cmd.y1}, {x:tox+cmd.x2,y:toy+cmd.y2}, {x:tox+cmd.x,y:toy+cmd.y}],
-                            // 0.01,
-                            [[tox, toy], [tox + cmd.x1, toy + cmd.y1], [tox + cmd.x2, toy + cmd.y2], [tox + cmd.x, toy + cmd.y]],
-                            1,
-                            doCommand
-                        )
+						bc.penThen(0, function () { // 0=down, 1=up
+							bc.drawCubicBezier(
+								// [{x:tox,y:toy}, {x:cmd.x1,y:cmd.y1}, {x:cmd.x2,y:cmd.y2}, {x:cmd.x,y:cmd.y}],
+								// 0.01,
+								[[tox, toy], [cmd.x1, cmd.y1], [cmd.x2, cmd.y2], [cmd.x, cmd.y]],
+								1,
+								doCommand
+							)
+						})
                         break
                     case 'S':
                         // absolute smooth cubic bezier curve
@@ -439,63 +445,25 @@ var BotController = (cfg) => {
                         // draw it!
                         var pts = [[tox, toy], [inf.x, inf.y], [cmd.x2, cmd.y2], [cmd.x, cmd.y]]
                         console.log('calculated points:', pts)
-                        bc.drawCubicBezier(
-                            pts,
-                            1,
-                            doCommand
-                        )
-
-                        break
-                    case 's':
-                        // relative smooth cubic bezier curve
-
-                        // check to see if previous command was a C or S
-                        // if not, the inferred control point is assumed to be equal to the start curve's start point
-                        var inf
-                        if (prevCmd.command.indexOf('curveto') < 0) {
-                            inf = {
-                                x: tox,
-                                y: toy
-                            }
-                        } else {
-                            // get absolute x2 and y2 values from previous command if previous command was relative
-                            if (prevCmd.relative) {
-                                prevCmd.x2 = bc.pos.x - prevCmd.x + prevCmd.x2
-                                prevCmd.y2 = bc.pos.y - prevCmd.y + prevCmd.y2
-                            }
-                            // calculate inferred control point from previous commands
-                            // reflection of x2,y2 of previous commands
-                            inf = {
-                                x: tox + (tox - prevCmd.x2),
-                                y: toy + (toy - prevCmd.y2)
-                            }
-                        }
-
-                        // draw it!
-                        bc.drawCubicBezier(
-                            [[tox, toy], [inf.x, inf.y], [tox + cmd.x2, toy + cmd.y2], [tox + cmd.x, toy + cmd.y]],
-                            1,
-                            doCommand
-                        )
+						bc.penThen(0, function () { // 0=down, 1=up
+							bc.drawCubicBezier(
+								pts,
+								1,
+								doCommand
+							)
+						})	
                         break
                     case 'Q':
                         // absolute quadratic bezier curve
-                        bc.drawQuadraticBezier(
-                            [[tox, toy], [cmd.x1, cmd.y1], [cmd.x, cmd.y]],
-                            1,
-                            doCommand
-                        )
+						bc.penThen(0, function () { // 0=down, 1=up
+							bc.drawQuadraticBezier(
+								[[tox, toy], [cmd.x1, cmd.y1], [cmd.x, cmd.y]],
+								1,
+								doCommand
+							)
+						})	
                         break
-                    case 'q':
-                        // relative quadratic bezier curve
-                        bc.drawQuadraticBezier(
-                            [[tox, toy], [tox + cmd.x1, toy + cmd.y1], [tox + cmd.x, toy + cmd.y]],
-                            1,
-                            doCommand
-                        )
-                        break
-
-                    case 'T':
+                     case 'T':
                         // absolute smooth quadratic bezier curve
 
                         // check to see if previous command was a C or S
@@ -521,46 +489,14 @@ var BotController = (cfg) => {
                         }
 
                         // draw it!
-                        bc.drawQuadraticBezier(
-                            [[tox, toy], [inf.x, inf.y], [cmd.x, cmd.y]],
-                            1,
-                            doCommand
-                        )
-
+						bc.penThen(0, function () { // 0=down, 1=up
+							bc.drawQuadraticBezier(
+								[[tox, toy], [inf.x, inf.y], [cmd.x, cmd.y]],
+								1,
+								doCommand
+							)
+						})
                         break
-                    case 't':
-                        // relative smooth quadratic bezier curve
-
-                        // check to see if previous command was a C or S
-                        // if not, the inferred control point is assumed to be equal to the start curve's start point
-                        var inf
-                        if (prevCmd.command.indexOf('curveto') < 0) {
-                            inf = {
-                                x: tox,
-                                y: toy
-                            }
-                        } else {
-                            // get absolute x1 and y1 values from previous command if previous command was relative
-                            if (prevCmd.relative) {
-                                prevCmd.x1 = bc.pos.x - prevCmd.x + prevCmd.x1
-                                prevCmd.y1 = bc.pos.y - prevCmd.y + prevCmd.y1
-                            }
-                            // calculate inferred control point from previous commands
-                            // reflection of x2,y2 of previous commands
-                            inf = {
-                                x: tox + (tox - prevCmd.x1),
-                                y: toy + (toy - prevCmd.y1)
-                            }
-                        }
-
-                        // draw it!
-                        bc.drawQuadraticBezier(
-                            [[tox, toy], [inf.x, inf.y], [tox + cmd.x, toy + cmd.y]],
-                            1,
-                            doCommand
-                        )
-                        break
-
                     case 'A':
                         // absolute arc
 
@@ -579,48 +515,32 @@ var BotController = (cfg) => {
                         console.log(curves)
 
                         // draw the arc
-                        bc.drawArc(curves, doCommand)
-
+						bc.penThen(0, function () { // 0=down, 1=up
+							bc.drawArc(curves, doCommand)
+						})
                         break
-
-                    case 'a':
-                        // relative arc TODO: CHECK THIS!
-
-                        // convert arc to cubic bezier curves
-                        var curves = arcToBezier({
-                            px: tox,
-                            py: toy,
-                            cx: tox + cmd.x,// relative
-                            cy: toy + cmd.y,// relative
-                            rx: cmd.rx,
-                            ry: cmd.ry,
-                            xAxisRotation: cmd.xAxisRotation,
-                            largeArcFlag: cmd.largeArc,
-                            sweepFlag: cmd.sweep
-                        })
-                        console.log(curves)
-
-                        // draw the arc
-                        bc.drawArc(curves, doCommand)
-
-                        break
-
                     case 'Z':
-                    case 'z':
-                        // STOP
-                        doCommand()
+						tox = Number(cmd.x)
+                        toy = Number(cmd.y)
+						bc.penThen(0, function () { // 0=down, 1=up
+							bc.lineTo(Number(tox), Number(toy), doCommand)
+						})
                         break
                 }
 
                 prevCmd = cmd
 
             } else {
-                cmdCount = 0
-                cmdIndex = 0
-                console.log('path done!')
-                bc.drawingPath = false
-                bc.drawNextPath()
-            }
+				bc.penThen(1, function () { // 0=down, 1=up
+					//bc.moveTo(0, 0, doCommand)
+					
+					cmdCount = 0
+					cmdIndex = 0
+					console.log('path done!')
+					bc.drawingPath = false
+					bc.drawNextPath()
+				})
+			}
         }
         doCommand()
     }
