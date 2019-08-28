@@ -6,6 +6,9 @@ var express = require('express')
 var app = express()
 var server = require('http').Server(app)
 var io = require('socket.io')(server)
+var svgParse = require('svg-path-parser')
+var extract = require('extract-svg-path')
+var cheerio = require('cheerio')
 
 var LocalServer = (cfg, controller) => {
     var c = controller
@@ -35,9 +38,18 @@ var LocalServer = (cfg, controller) => {
             c.addPath(data.path)
         })
         socket.on('drawart',function(data){
+            // Get whole svg, extract all path tags and concatenate them
+            var $ = cheerio.load(data.content, { xmlMode: true })
+            var fullpath = ''
+            $('path').each(function () {
+                var d = $(this).attr('d');
+                fullpath += d.replace(/\s+/g, ' ') + ' '
+            })
+
             c.paths = []
             c.drawingPath = false
-            c.addPath(data.path)
+            c.addPath(fullpath.trim())
+
         })
         socket.on('setStartPos',function(data){
             c.setStartPos(data)

@@ -4,14 +4,13 @@
 // ' .-. |  .--' ,-.  |  |.'.|  | .-. | .-. '-.  .-'
 // \ `-' |  |  \ '-'  |   .'.   | `-' ' '-' ' |  |
 //  `---'`--'   `--`--'--'   '--'`---' `---'  `--'
-// Created by Andy Wise
+// Created by Andy Wise, modified by Chris Tarantl
 //
 
 // import external and node-specific modules
 var Config = require('./modules/Config')
 var BotController = require('./modules/BotController')
 var LocalServer = require('./modules/LocalServer')
-// var BotClient = require('./modules/BotClient') // for optional remote drawbot relay server client
 
 var isPi = require('detect-rpi');
 
@@ -31,10 +30,6 @@ var config = Config('config.json', () => {
 	// Local Server
 	localServer = LocalServer(config, botController)
 	botController.localio = localServer.io
-
-	// Optional: Remote Drawbot Relay Server (requires "BotClient" import above, and "remoteURL" value in config.json)
-	// botClient = BotClient(config, botController)
-	// botController.client = botClient
 
 	// Initialize!
 	go()

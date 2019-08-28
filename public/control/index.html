@@ -300,15 +300,8 @@
 
 
     <script>
-        // var botID = location.hash.substr(1) || 'two'
-        // document.title = 'drawbot: ' + botID
-        // let botIDel = document.querySelector('#botid')
-        // botIDel.innerHTML = botID
-        // console.log('botID:',botID)
-
         var connectionIndicator = document.querySelector('#connection')
 
-        
         var socket = io.connect('/');
         socket.on('connected', function (data) {
             console.log('connected!');
@@ -331,7 +324,6 @@
             var data = this.dataset
             console.log(data)
             data.d = 1
-            // data.botID = botID
             socket.emit('r', data)
             //console.log(data);
         }
@@ -340,8 +332,7 @@
         pen.addEventListener('click',function(e){
             penz = !penz// swap pen position
             var data = {
-                up: penz,
-                // botID: botID
+                up: penz
             }
             socket.emit('pen',data);
         });
@@ -349,7 +340,6 @@
         var home = document.querySelector('.home');
         home.addEventListener('click',function(e){
             var data = {x:0,y:0}
-            // data.botID = botID
             socket.emit('moveto', data);
         });
 
@@ -379,10 +369,7 @@
             percentage: true
         })
         socket.on('progressUpdate', function(data){
-            // if(data.botID == botID){
-                // console.log(data)
                 ri.animate(data.percentage)
-            // }
         });
 
         var dfield = document.querySelector('input[name="d"]');
@@ -393,7 +380,6 @@
             if (dfield.value == "") dfield.value = 0
             var data = {
                 d: Number(dfield.value),
-                // botID: botID
             }
             socket.emit('setD',data)
         }
@@ -402,31 +388,22 @@
                 x: Number(xfield.value),
                 y: Number(yfield.value)
             }
-            // data.botID = botID
             socket.emit('setStartPos',data)
         }
         xfield.onchange = yfield.onchange = updateStartPos;
 
         socket.on('DXY', function(data){
-            // if(data.botID == botID){
                 console.log('DXY',data)
                 dfield.value = data.d
                 xfield.value = data.x
                 yfield.value = data.y
-            // }else{
-                // console.log('DXY for another bot with ID:', data.botID)
-            // }
         });
         
         socket.on('botConnect', function(data){
-            // if(data.botID == botID){
                 botConnectHandler()
-            // }
         })
         socket.on('botDisconnect', function(data){
-            // if(data.botID == botID){
                 botDisconnectHandler()
-            // }
         })
         socket.on('botConnectionStatus', function(connected){
             if(connected){
@@ -458,13 +435,6 @@
             data = 0;
             socket.emit('pause', data);
         });
-
-               /* var home = document.querySelector('.home');
-                    home.addEventListener('click', function (e) {
-                        var data = { x: 0, y: 0 }
-                        // data.botID = botID
-                        socket.emit('moveto', data);
-                    });*/
 
         var rebootButton = document.querySelector('.reboot');
         rebootButton.addEventListener('click',function(e){
@@ -500,37 +470,19 @@
 		    e.preventDefault();
 
             console.log('dropped!');
-		    var file = e.dataTransfer.files[0],
-		        reader = new FileReader();
+            var file = e.dataTransfer.files[0];
+            console.log(file);
 
-				reader.onload = function(evt) {
-		        svg = ParseXML(evt.target.result);
-                // holder.innerHTML = evt.target.result;
-                
-                /*svgpaths = svg.getElementsByTagName('path');
-                console.log("Paths: ", svgpaths.length);
-                var data = "";
-                for (p = 0; p < svgpaths.length; p++) {
-                    var path = "";
-                    path = svg.getElementsByTagName('path')[p];
-                    data += path.getAttribute('d');
-                    data += " ";
-                    console.log("p:"+ p+ "| path:"+path.getAttribute('d'));
-                }
-
-                console.log(data);
-                */
-                /* keep in Mind -> M means MOVE ... Z means End Path and return to first point of path */
-
-                var path = svg.getElementsByTagName('path')[0];
+            var reader = new FileReader();
+            reader.onload = function (evt) {
+                var text = evt.target.result;
+                //console.log(text);
                 var data = {
-                    path: path.getAttribute('d'),
-                    // botID: botID
+                    content: text
                 }
                 socket.emit('drawart', data);
-		    }
-		    reader.readAsText(file);
-
+            };
+            reader.readAsText(file);
 		    return false;
 		}
 </script>
