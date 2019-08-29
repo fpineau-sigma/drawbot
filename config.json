@@ -3,16 +3,16 @@
   "swapDirections": false,
   "localPort": 80,
   "baseDelay": 1,
-  "d": 630,
+  "d": 570,
   "startPos": {
-    "x": 100,
-    "y": 150
+    "x": 50,
+    "y": 100
   },
   "stepsPerMM": [
     18,
     18
   ],
-  "penPauseDelay": 400,
+  "penPauseDelay": 100,
   "remoteURL": "",
   "pins": {
     "leftDir": 20,

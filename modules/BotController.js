@@ -191,26 +191,27 @@ var BotController = (cfg) => {
         doStep()
     }
 
-    bc.rotate = (dir, steps, callback) => {
-        console.log('bc.rotate', dir, steps)
-        bc.stepCounts[0] = Math.round(steps)
-        bc.stepCounts[1] = Math.round(steps)
+    bc.rotate = (motorIndex, dirIndex, delay, steps, callback) => {
+        console.log('bc.rotate', motorIndex, dirIndex, delay, steps)
+        bc.stepCounts[motorIndex] = Math.round(steps)
+        bc.steppeds[motorIndex] = 0
+        // var dir = (dirIndex==1) ? 0 : 1// reverses direction
 
-        bc.steppeds[0] = 0
-        bc.steppeds[1] = 0
-
-        if(dir == 0){ //up
-
-        }else if(dir == 1){ //right
-
-        }else if(dir == 2){ //left
-
-        }else if(dir == 3){ //down
-
-        }else{
-
+        // doStep, then wait for delay d
+        var doStep = function (d, m) {
+            bc.makeStep(m, dirIndex)// changed to dirIndex from dir
+            bc.steppeds[m]++
+            if (bc.steppeds[m] < bc.stepCounts[m]) {
+                setTimeout(function () {
+                    // console.log(m, bc.steppeds[m], "/", bc.stepCounts[m], d*bc.steppeds[m], "/", bc.stepCounts[m]*d)
+                    doStep(d, m)
+                }, d)
+            } else {
+                // done
+                if (callback != undefined) callback()
+            }
         }
-
+        doStep(delay, motorIndex)
     }
 
 
@@ -322,15 +323,15 @@ var BotController = (cfg) => {
 
     bc.drawPath = (pathString) => {
         bc.drawingPath = true
-        console.log('drawing path...')
+        console.log('generating path...')
         const commands = parseSVG(pathString);
 		makeAbsolute(commands);
         // var commands = pathString.split(/(?=[MmLlHhVvZz])/)
         var cmdCount = commands.length
         console.log(cmdCount)
-		console.log(commands)
+		//console.log(commands)
 		
-		
+        console.log('drawing path...')
 		var cmdIndex = 0
         var prevCmd
 		
