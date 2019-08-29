@@ -15,10 +15,10 @@
   "penPauseDelay": 100,
   "remoteURL": "",
   "pins": {
-    "leftDir": 20,
-    "rightDir": 6,
-    "leftStep": 21,
-    "rightStep": 13,
-    "penServo": 18
+    "leftDir": 13,
+    "rightDir": 5,
+    "leftStep": 19,
+    "rightStep": 6,
+    "penServo": 26
   }
 }
