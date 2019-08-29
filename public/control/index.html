@@ -19,8 +19,12 @@
         }
 
         #control{
-            margin:12vh 0 0 0;
-            position:relative;
+            position: absolute;
+            transform: rotateY(0deg) rotate(45deg);
+            margin-top: 0vh;
+            margin-right: 0vh;
+            margin-bottom: 0vh;
+            margin-left: 32vh;
         }
 
         .level{
@@ -127,6 +131,7 @@
             top:37.5vw;
             left:37.5vw;
             border-color:white;
+            transform: rotateY(0deg) rotate(-45deg);
         }
         .home{
             top:2vw;
@@ -249,26 +254,26 @@
             <div id="control">
                 <div class="level one">
                     <div class="circle">
-                        <a data-m="0" data-dir="1" data-steps="1000" class="item tl"></a>
-                        <a data-m="1" data-dir="0" data-steps="1000" class="item tr"></a>
-                        <a data-m="1" data-dir="1" data-steps="1000" class="item bl">1000</a>
-                        <a data-m="0" data-dir="0" data-steps="1000" class="item br"></a>
+                        <a data-dir="0" data-steps="1000" class="item tl"></a>       <!-- top -->
+                        <a data-dir="1" data-steps="1000" class="item tr"></a>       <!-- right -->
+                        <a data-dir="2" data-steps="1000" class="item bl">1000</a>   <!-- left -->
+                        <a data-dir="3" data-steps="1000" class="item br"></a>       <!-- down -->
                     </div>
                 </div>
                 <div class="level two">
                     <div class="circle">
-                        <a data-m="0" data-dir="1" data-steps="100" class="item tl"></a>
-                        <a data-m="1" data-dir="0" data-steps="100" class="item tr"></a>
-                        <a data-m="1" data-dir="1" data-steps="100" class="item bl">100</a>
-                        <a data-m="0" data-dir="0" data-steps="100" class="item br"></a>
+                        <a data-dir="0" data-steps="100" class="item tl"></a>
+                        <a data-dir="1" data-steps="100" class="item tr"></a>
+                        <a data-dir="2" data-steps="100" class="item bl">100</a>
+                        <a data-dir="3" data-steps="100" class="item br"></a>
                     </div>
                 </div>
                 <div class="level three">
                     <div class="circle">
-                        <a data-m="0" data-dir="1" data-steps="10" class="item tl"></a>
-                        <a data-m="1" data-dir="0" data-steps="10" class="item tr"></a>
-                        <a data-m="1" data-dir="1" data-steps="10" class="item bl">10</a>
-                        <a data-m="0" data-dir="0" data-steps="10" class="item br"></a>
+                        <a data-dir="0" data-steps="10" class="item tl"></a>
+                        <a data-dir="1" data-steps="10" class="item tr"></a>
+                        <a data-dir="2" data-steps="10" class="item bl">10</a> 
+                        <a data-dir="3" data-steps="10" class="item br"></a>
                     </div>
                 </div>
                 <a href="#" class="btn pen">PEN</a>
@@ -323,7 +328,6 @@
             e.preventDefault()
             var data = this.dataset
             console.log(data)
-            data.d = 1
             socket.emit('r', data)
             //console.log(data);
         }

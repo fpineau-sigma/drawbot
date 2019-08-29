@@ -11,6 +11,17 @@ If you want to build one on your own, check out the readme of andywises reposito
 ### Printable Parts
 
 ### Everything Else
+The Stepper controllers used are doing 1/8 microstepping by default (took me a while till i found this out)
+As i have a slightly different hardware, the circumfence of my spools - therefore i had to change the mm per step value in config.json  ("stepsPerMM": [ )
+
+SVG HINTS:
+The whole artwork should be in one group
+Text has to be converted to paths
+
+INKSCAPE HINTS:
+Export with ABSOLUTE path format: Settings > Iput/output > SVG-output...
+Ungroup everything and regroup -> all coordinates get recalculated (otherwise there is a translation matrix in the svg which is not interpreted by the drawbot and the artwork is probably at the wrong place and has the wrong size)
+Units should always be PIXELS -> the drawbot makes 1px to 1mm
 
 ## Wiring
 

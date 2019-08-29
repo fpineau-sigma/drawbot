@@ -139,7 +139,7 @@ var BotController = (cfg) => {
 
     bc.makeStep = (m, d) => {
         // console.log('step',d)
-        if (bc._DIRSWAP) d = !d// swap direction if that setting is on
+        if (bc._DIRSWAP) d = !d
         if (isPi()) { dirPins[m].digitalWrite(d) }
         if (isPi()) { stepPins[m].digitalWrite(1) }
         setTimeout(function () {
@@ -191,28 +191,29 @@ var BotController = (cfg) => {
         doStep()
     }
 
-    bc.rotate = (motorIndex, dirIndex, delay, steps, callback) => {
-        console.log('bc.rotate', motorIndex, dirIndex, delay, steps)
-        bc.stepCounts[motorIndex] = Math.round(steps)
-        bc.steppeds[motorIndex] = 0
-        // var dir = (dirIndex==1) ? 0 : 1// reverses direction
+    bc.rotate = (dir, steps, callback) => {
+        console.log('bc.rotate', dir, steps)
+        bc.stepCounts[0] = Math.round(steps)
+        bc.stepCounts[1] = Math.round(steps)
 
-        // doStep, then wait for delay d
-        var doStep = function (d, m) {
-            bc.makeStep(m, dirIndex)// changed to dirIndex from dir
-            bc.steppeds[m]++
-            if (bc.steppeds[m] < bc.stepCounts[m]) {
-                setTimeout(function () {
-                    // console.log(m, bc.steppeds[m], "/", bc.stepCounts[m], d*bc.steppeds[m], "/", bc.stepCounts[m]*d)
-                    doStep(d, m)
-                }, d)
-            } else {
-                // done
-                if (callback != undefined) callback()
-            }
+        bc.steppeds[0] = 0
+        bc.steppeds[1] = 0
+
+        if(dir == 0){ //up
+
+        }else if(dir == 1){ //right
+
+        }else if(dir == 2){ //left
+
+        }else if(dir == 3){ //down
+
+        }else{
+
         }
-        doStep(delay, motorIndex)
+
     }
+
+
 
 
     /////////////////////////////////
@@ -223,9 +224,7 @@ var BotController = (cfg) => {
 
         if (x == 0 && y == 0) {
             console.log("-------> homing <-------")
-			
         }
-
         // convert x,y to l1,l2 (ideal, precise string lengths)
         var X = x + bc.startPos.x
         var Y = y + bc.startPos.y
@@ -272,23 +271,11 @@ var BotController = (cfg) => {
             bc.pos.x = x
             bc.pos.y = y
         }
-
-        //if (penDir != 0) {
-            // MOVETO (default)
-            // pen up, then
-            //bc.penThen(1, doRotation)
-        //} else {
-            // LINETO
-            doRotation()
-        //}
-
+    doRotation()
     }
 
     bc.lineTo = (x, y, callback) => {
-        // pen down, then draw line
-        //bc.penThen(0, function () {
         bc.moveTo(Number(x), Number(y), callback, 0)// 0 makes bc.moveTo happen with pen down instead of up
-        //})
     }
 
 
