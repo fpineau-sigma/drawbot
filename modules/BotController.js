@@ -7,7 +7,7 @@ if (isPi()) {
 
 var cBezier = require('adaptive-bezier-curve')
 var qBezier = require('adaptive-quadratic-curve')
-//var svgParse = require('svg-path-parser')
+var limitswitches = require('rpi-gpio-buttons')([36, 38]); //initialize limit switches on pins 36 (gpio20) and 38 (gpio38)
 const {parseSVG, makeAbsolute} = require('svg-path-parser');
 var arcToBezier = require('./arcToBezier')// copied from svg-arc-to-bezier npm library, because it uses es6 import instead of require
 
@@ -70,6 +70,23 @@ var BotController = (cfg) => {
     bc.paths = []
     bc.drawingPath = false
 
+
+    /////////////////////////////////
+    // LIMIT SWITCHES FOR AUTOMATIC HOMING
+
+    buttons.on('clicked', function (pin) {
+        switch (pin) {
+            // left limit switch was triggered
+            case 36:
+                //userClickedUp();
+                break
+
+            // right limit switch was triggered
+            case 38:
+                //userClickedDown();
+                break;
+        }
+    });
 
     /////////////////////////////////
     // HARDWARE METHODS
@@ -192,7 +209,7 @@ var BotController = (cfg) => {
     }
 
     bc.rotate = (motorIndex, dirIndex, delay, steps, callback) => {
-        console.log('bc.rotate', motorIndex, dirIndex, delay, steps)
+        //console.log('bc.rotate', motorIndex, dirIndex, delay, steps)
         bc.stepCounts[motorIndex] = Math.round(steps)
         bc.steppeds[motorIndex] = 0
         // var dir = (dirIndex==1) ? 0 : 1// reverses direction
@@ -362,6 +379,20 @@ var BotController = (cfg) => {
                 if (bc.localio) bc.localio.emit('progressUpdate', {
                     percentage: percentage
                 })
+
+                if (bc.localio) bc.localio.emit('progressDraw', {
+                    cmd: cmdCode,
+                    x: Number(cmd.x),
+                    y: Number(cmd.y),
+                    x0: Number(cmd.x0),
+                    y0: Number(cmd.y0),
+                    x1: Number(cmd.x1),
+                    y1: Number(cmd.y1),
+                    x2: Number(cmd.x2),
+                    y2: Number(cmd.y2)
+
+                })
+
                 switch (cmdCode) {
                     case 'M':
                         // absolute move

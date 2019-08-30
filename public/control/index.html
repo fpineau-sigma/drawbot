@@ -9,6 +9,8 @@
         content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Drawbot Control</title>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/1.4/rgbcolor.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvg/dist/browser/canvg.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/radialIndicator.min.js"></script>
     <style>
@@ -141,6 +143,12 @@
             right: 2vw;
         }
 
+        .close2 {
+            border-color: white;
+            top: 2vw;
+            right: 2vw;
+        }
+
         .clearcanvas {
             top: 115vw;
             left: 2vw;
@@ -165,6 +173,12 @@
             border-color: white;
         }
 
+        .progress {
+            top: 2vw;
+            right: 20vw;
+            border-color: white;
+        }
+
         .pause {
             margin: 2vw 0 0 0;
             left: 17vw;
@@ -181,10 +195,16 @@
 
         #home {
             visibility: hidden;
+            border-color: green;
         }
 
         #settings {
             visibility: hidden;
+            border-color: red;
+        }
+        #progress {
+            visibility: hidden;
+            border-color: blue;
         }
 
         .on {
@@ -287,6 +307,7 @@
         <div class="page on" id="home">
             <a href="#" class="btn home"><i class="fa  fa-home fa-2x"></i></a>
             <a href="#" class="btn settings"><i class="fa  fa-gear fa-2x"></i></a>
+            <a href="#" class="btn progress"><i class="fa  fa-sticky-note fa-2x"></i></a>
             <a href="#" class="btn clearcanvas"><i class="fa  fa-minus-circle fa-2x"></i></a>
             <div id="percentage" class=""></div>
             <div id="control">
@@ -337,6 +358,15 @@
             </form>
             <a href="#" class="btn pause"><i class="fa fa-pause fa-2x"></i></a>
             <a href="#" class="btn reboot"><i class="fa fa-refresh fa-2x"></i></a>
+        </div>
+        <div class="page" id="progress">
+            <a href="#" class="btn close2"><i class="fa fa-close fa-2x"></i></a>
+            <canvas id="originCanvas" width="480" height="600">
+                        
+            </canvas>
+            <canvas id="progressCanvas" width="480" height="600">
+                
+            </canvas>
         </div>
     </div>
 
@@ -400,6 +430,23 @@
             homePage.classList.toggle('on');
         }
 
+        var progressButton = document.querySelector('.progress');
+        progressButton.addEventListener('click', function (e) {
+            toggleProgress();
+        });
+
+        var progressPage = document.querySelector('#progress');
+        var homePage = document.querySelector('#home');
+        function toggleProgress() {
+            progressPage.classList.toggle('on');
+            homePage.classList.toggle('on');
+        }
+
+        var closeButton2 = document.querySelector('.close2');
+        closeButton2.addEventListener('click', function (e) {
+            toggleProgress();
+        });
+
         var clearcanvasButton = document.querySelector('.clearcanvas');
         clearcanvasButton.addEventListener('click', function (e) {
             socket.emit('clearCanvas')
@@ -415,6 +462,10 @@
         })
         socket.on('progressUpdate', function (data) {
             ri.animate(data.percentage)
+        });
+
+        socket.on('progressDraw', function (data) {
+                console.log(data);
         });
 
         var dfield = document.querySelector('input[name="d"]');
@@ -518,10 +569,15 @@
             var file = e.dataTransfer.files[0];
             console.log(file);
 
+            var origcanvas = document.getElementById("originCanvas");
+            var origctx = origcanvas.getContext("2d");
+
             var reader = new FileReader();
             reader.onload = function (evt) {
                 var text = evt.target.result;
-                //console.log(text);
+                console.log(text);
+                origctx.drawSvg(text, 0, 0, 480, 600)
+
                 var data = {
                     content: text
                 }

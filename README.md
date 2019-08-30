@@ -29,7 +29,10 @@ Units should always be PIXELS -> the drawbot makes 1px to 1mm
 
 ## Hardware Assembly
 
-## Raspberry Pi Zero W Basic Setup
+Instead of using a Raspberry Pi zero W i decided to go for a 3B+ because manipulating and rendering complex svg paths in nodeJS is almost impossible on a zero w
+-> pinouts and wiring are different here (wiring jpg to be updated)
+
+## Raspberry Pi 3B+ Setup
 1. **Download and install [Etcher](https://etcher.io/)**.
 2. **Download and install latest [Raspbian OS](https://www.raspberrypi.org/downloads/raspbian/)** and flash it onto your SD card with Etcher.
 3. **Enable SSH** by adding a blank file named `ssh` (no extension) to the `boot` directory on the Pi's SD card. (Last tested with Raspbian Stretch Lite 2018-06-27 version.)

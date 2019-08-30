@@ -50,7 +50,7 @@ var LocalServer = (cfg, controller) => {
             c.paths = []
             c.drawingPath = false
             c.addPath(fullpath.trim())
-			console.log(fullpath.trim())
+			//console.log(fullpath.trim())
 
         })
         socket.on('setStartPos',function(data){
