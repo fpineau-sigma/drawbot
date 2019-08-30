@@ -167,6 +167,13 @@
             border-color: white;
         }
 
+        .sethome {
+            top: 2vw;
+            left: 20vw;
+            border-color: white;
+            display:none;
+        }
+
         .settings {
             top: 2vw;
             right: 2vw;
@@ -309,6 +316,7 @@
         <div id="connection" class="fa fa-circle"></div>
         <div class="page on" id="home">
             <a href="#" class="btn home"><i class="fa  fa-home fa-2x"></i></a>
+            <a href="#" class="btn sethome"><i class="fa  fa-plus-circle fa-2x"></i></a>
             <a href="#" class="btn settings"><i class="fa  fa-gear fa-2x"></i></a>
             <a href="#" class="btn progress"><i class="fa  fa-sticky-note fa-2x"></i></a>
             <a href="#" class="btn clearcanvas"><i class="fa  fa-minus-circle fa-2x"></i></a>
@@ -421,6 +429,17 @@
             socket.emit('moveto', data);
         });
 
+        // TODO change the way the gui movement works -> then set startpoint works correctly
+        /*var sethome = document.querySelector('.sethome');
+            sethome.addEventListener('click', function (e) {
+                var data = {
+                    x: 0,
+                    y: 0
+                }
+                socket.emit('setStartPos', data)
+            });
+        */
+
         var settingsButton = document.querySelector('.settings');
         settingsButton.addEventListener('click', function (e) {
             toggleSettings();
@@ -530,6 +549,9 @@
             }
             socket.emit('setD', data)
         }
+
+        
+
         function updateStartPos() {
             var data = {
                 x: Number(xfield.value),

@@ -323,8 +323,8 @@ var BotController = (cfg) => {
     bc.clearcanvas = () => {
         // Todo stopping, moving to home position and clearing input
 		bc.penThen(1, function () { // 0=down, 1=up
-			
-			console.log("Clearing...")
+            console.log("Homing and Clearing...")
+            
 		})
     }
 
@@ -358,13 +358,20 @@ var BotController = (cfg) => {
         console.log('drawing path...')
 		var cmdIndex = 0
         var prevCmd
+
+        // TODO check if number is not negative or out of drawing bounds for safety reasons
+        function checkValue(value){
+            return value
+        }
 		
         function doCommand() {
             if (cmdIndex < cmdCount) {
                 var cmd = commands[cmdIndex]
                 var cmdCode = cmd.code
-                var tox = bc.pos.x
-                var toy = bc.pos.y
+
+                var tox = checkValue(bc.pos.x)
+                var toy = checkValue(bc.pos.y)
+
                 cmdIndex++
                 var percentage = Math.round((cmdIndex / cmdCount) * 100)
                 console.log(cmd, percentage + '%')
@@ -378,44 +385,44 @@ var BotController = (cfg) => {
 
                 if (bc.localio) bc.localio.emit('progressDraw', {
                     cmd: cmdCode,
-                    x: Number(cmd.x),
-                    y: Number(cmd.y),
-                    x0: Number(cmd.x0),
-                    y0: Number(cmd.y0),
-                    x1: Number(cmd.x1),
-                    y1: Number(cmd.y1),
-                    x2: Number(cmd.x2),
-                    y2: Number(cmd.y2)
+                    x: checkValue(Number(cmd.x)),
+                    y: checkValue(Number(cmd.y)),
+                    x0: checkValue(Number(cmd.x0)),
+                    y0: checkValue(Number(cmd.y0)),
+                    x1: checkValue(Number(cmd.x1)),
+                    y1: checkValue(Number(cmd.y1)),
+                    x2: checkValue(Number(cmd.x2)),
+                    y2: checkValue(Number(cmd.y2))
 
                 })
 
                 switch (cmdCode) {
                     case 'M':
                         // absolute move
-                        tox = Number(cmd.x)
-                        toy = Number(cmd.y)
+                        tox = checkValue(Number(cmd.x))
+                        toy = checkValue(Number(cmd.y))
 						bc.penThen(1, function () { // 0=down, 1=up
 							bc.moveTo(Number(tox), Number(toy), doCommand)
 						})
                         break
                     case 'L':
                         // absolute line
-                        tox = Number(cmd.x)
-                        toy = Number(cmd.y)
+                        tox = checkValue(Number(cmd.x))
+                        toy = checkValue(Number(cmd.y))
 						bc.penThen(0, function () { // 0=down, 1=up
 							bc.lineTo(Number(tox), Number(toy), doCommand)
 						})
                         break
                     case 'H':
                         // absolute horizontal line
-                        tox = Number(cmd.x)
+                        tox = checkValue(Number(cmd.x))
 						bc.penThen(0, function () { // 0=down, 1=up
 							bc.lineTo(Number(tox), Number(toy), doCommand)
 						})
                         break
                     case 'V':
                         // absolute vertical line
-                        toy = Number(cmd.y)
+                        toy = checkValue(Number(cmd.y))
 						bc.penThen(0, function () { // 0=down, 1=up
 							bc.lineTo(Number(tox), Number(toy), doCommand)
 						})
@@ -426,7 +433,7 @@ var BotController = (cfg) => {
 							bc.drawCubicBezier(
 								// [{x:tox,y:toy}, {x:cmd.x1,y:cmd.y1}, {x:cmd.x2,y:cmd.y2}, {x:cmd.x,y:cmd.y}],
 								// 0.01,
-								[[tox, toy], [cmd.x1, cmd.y1], [cmd.x2, cmd.y2], [cmd.x, cmd.y]],
+                                [[tox, toy], [checkValue(cmd.x1), checkValue(cmd.y1)], [checkValue(cmd.x2), checkValue(cmd.y2)], [checkValue(cmd.x), checkValue(cmd.y)]],
 								1,
 								doCommand
 							)
@@ -472,7 +479,8 @@ var BotController = (cfg) => {
                         // absolute quadratic bezier curve
 						bc.penThen(0, function () { // 0=down, 1=up
 							bc.drawQuadraticBezier(
-								[[tox, toy], [cmd.x1, cmd.y1], [cmd.x, cmd.y]],
+                                
+                                [[tox, toy], [checkValue(cmd.x1), checkValue(cmd.y1)], [checkValue(cmd.x), checkValue(cmd.y)]],
 								1,
 								doCommand
 							)
@@ -535,10 +543,10 @@ var BotController = (cfg) => {
 						})
                         break
                     case 'Z':
-						tox = Number(cmd.x)
-                        toy = Number(cmd.y)
+                        tox = checkValue(Number(cmd.x))
+                        toy = checkValue(Number(cmd.y))
 						bc.penThen(0, function () { // 0=down, 1=up
-							bc.lineTo(Number(tox), Number(toy), doCommand)
+							bc.lineTo(tox, toy, doCommand)
 						})
                         break
                 }
@@ -549,7 +557,7 @@ var BotController = (cfg) => {
 				bc.penThen(1, function () { // 0=down, 1=up
 					cmdCount = 0
 					cmdIndex = 0
-					console.log('path done!')
+                    console.log('path done!')
 					bc.drawingPath = false
 					bc.drawNextPath()
 				})
