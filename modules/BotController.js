@@ -1,7 +1,7 @@
 var isPi = require('detect-rpi');
 if (isPi()) {
     var Gpio = require('pigpio').Gpio
-    var limitswitches = require('rpi-gpio-buttons')([36, 38]); //initialize limit switches on pins 36 (gpio20) and 38 (gpio38)
+    //var limitswitches = require('rpi-gpio-buttons')([36, 38]); //initialize limit switches on pins 36 (gpio20) and 38 (gpio38)
 } else {
 
 }
@@ -77,7 +77,7 @@ var BotController = (cfg) => {
     // LIMIT SWITCHES FOR AUTOMATIC HOMING
 
     if (isPi()) {
-        limitswitches.on('clicked', function (pin) {
+        /*limitswitches.on('clicked', function (pin) {
             switch (pin) {
                 // left limit switch was triggered
                 case 36:
@@ -89,7 +89,7 @@ var BotController = (cfg) => {
                     //endRightTriggered();
                     break;
             }
-        });
+        });*/
     } else {
 
     }
