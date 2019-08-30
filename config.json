@@ -20,5 +20,9 @@
     "leftStep": 19,
     "rightStep": 6,
     "penServo": 26
+  },
+  "limits": {
+	"x":480,
+	"y":600
   }
 }

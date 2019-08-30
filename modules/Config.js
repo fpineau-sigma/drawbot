@@ -18,7 +18,6 @@ var Config = (file, callback) => {
         })
     }
     open(callback)
-
     return c
 }
 module.exports = Config

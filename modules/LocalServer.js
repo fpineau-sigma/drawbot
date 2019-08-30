@@ -6,7 +6,6 @@ var express = require('express')
 var app = express()
 var server = require('http').Server(app)
 var io = require('socket.io')(server)
-var svgParse = require('svg-path-parser')
 var cheerio = require('cheerio')
 
 var LocalServer = (cfg, controller) => {
@@ -69,6 +68,8 @@ var LocalServer = (cfg, controller) => {
               d: c._D,
               x: c.startPos.x,
               y: c.startPos.y,
+              limx: c.limits.x,
+              limy: c.limits.y,
               strings: c.startStringLengths
           })
         })

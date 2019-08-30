@@ -201,14 +201,17 @@
         #settings {
             visibility: hidden;
             border-color: red;
+            display:none;
         }
         #progress {
             visibility: hidden;
             border-color: blue;
+            display:none;
         }
 
         .on {
             visibility: visible !important;
+            display:block !important;
         }
 
         #dxy {
@@ -397,7 +400,7 @@
         function handleTouch(e) {
             e.preventDefault()
             var data = this.dataset
-            console.log(data)
+            //console.log(data)
             data.d = 1
             socket.emit('r', data)
             //console.log(data);
@@ -465,7 +468,55 @@
         });
 
         socket.on('progressDraw', function (data) {
-                console.log(data);
+            console.log(data);
+            var cmdCode = data.cmd
+            var x = data.x
+            var y = data.y
+            var tox0 = data.x0
+            var toy0 = data.y0
+            var tox1 = data.x1
+            var toy1 = data.y1
+            var tox2 = data.x2
+            var toy2 = data.y2
+                 
+            var progcanvas = document.getElementById("originCanvas");
+            var progctx = progcanvas.getContext("2d");
+            
+            switch (cmdCode) {
+                case 'L':
+                    progctx.beginPath();
+                    progctx.lineWith = "1";
+                    progctx.strokeStyle = "#FF0000"
+                    progctx.moveTo(x, y);
+                    progctx.lineTo(tox0, toy0);
+                    progctx.stroke();
+                break
+                case 'V':
+                    progctx.beginPath();
+                    progctx.lineWith = "1";
+                    progctx.strokeStyle = "#FF0000"
+                    progctx.moveTo(x, y);
+                    progctx.lineTo(tox0, toy0);
+                    progctx.stroke();
+                break
+                case 'C':
+                    progctx.beginPath();
+                    progctx.lineWith = "1";
+                    progctx.strokeStyle = "#FF0000"
+                    progctx.moveTo(x, y);
+                    
+                    progctx.bezierCurveTo(tox1, toy1, tox2, toy2, tox0, toy0);
+                    progctx.stroke();
+                break
+
+                default:
+                progctx.fillStyle = "#FF0000";
+                progctx.fillRect(x, y, 1, 1);
+                progctx.stroke(); 
+            }
+            
+
+
         });
 
         var dfield = document.querySelector('input[name="d"]');

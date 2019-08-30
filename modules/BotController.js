@@ -1,15 +1,16 @@
 var isPi = require('detect-rpi');
 if (isPi()) {
     var Gpio = require('pigpio').Gpio
+    var limitswitches = require('rpi-gpio-buttons')([36, 38]); //initialize limit switches on pins 36 (gpio20) and 38 (gpio38)
 } else {
 
 }
 
 var cBezier = require('adaptive-bezier-curve')
 var qBezier = require('adaptive-quadratic-curve')
-var limitswitches = require('rpi-gpio-buttons')([36, 38]); //initialize limit switches on pins 36 (gpio20) and 38 (gpio38)
+
 const {parseSVG, makeAbsolute} = require('svg-path-parser');
-var arcToBezier = require('./arcToBezier')// copied from svg-arc-to-bezier npm library, because it uses es6 import instead of require
+var arcToBezier = require('./arcToBezier')
 
 var BotController = (cfg) => {
 
@@ -21,6 +22,7 @@ var BotController = (cfg) => {
     // MAIN SETUP VARIABLES
     bc._BOT_ID = config.botID            // || 'two'
     bc._DIRSWAP = config.swapDirections   // || true
+    bc.limits = config.limits
     bc.baseDelay = config.baseDelay        // || 2
     bc._D = config.d                // || 1000// default distance between string starts
     bc.startPos = config.startPos         // || { x: 100, y: 100 }
@@ -74,19 +76,24 @@ var BotController = (cfg) => {
     /////////////////////////////////
     // LIMIT SWITCHES FOR AUTOMATIC HOMING
 
-    buttons.on('clicked', function (pin) {
-        switch (pin) {
-            // left limit switch was triggered
-            case 36:
-                //userClickedUp();
-                break
+    if (isPi()) {
+        limitswitches.on('clicked', function (pin) {
+            switch (pin) {
+                // left limit switch was triggered
+                case 36:
+                    //endLeftTriggered();
+                    break
 
-            // right limit switch was triggered
-            case 38:
-                //userClickedDown();
-                break;
-        }
-    });
+                // right limit switch was triggered
+                case 38:
+                    //endRightTriggered();
+                    break;
+            }
+        });
+    } else {
+
+    }
+
 
     /////////////////////////////////
     // HARDWARE METHODS
@@ -238,7 +245,7 @@ var BotController = (cfg) => {
     // DRAWING METHODS
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        console.log('---------- bc.moveTo', x, y, ' ----------')
+        //console.log('---------- bc.moveTo', x, y, ' ----------')
 
         if (x == 0 && y == 0) {
             console.log("-------> homing <-------")
@@ -307,23 +314,23 @@ var BotController = (cfg) => {
     }
 
     bc.pause = () => {
-        bc.paused = !(bc.paused != false)
-        console.log("paused: ", bc.paused)
+        //bc.paused = !(bc.paused != false)
+        console.log("stopped: ", bc.paused)
+
+        var cmdCount = cmdIndex;
     }
 
     bc.clearcanvas = () => {
         // Todo stopping, moving to home position and clearing input
 		bc.penThen(1, function () { // 0=down, 1=up
-			cmdCount = 0
-			cmdIndex = 0
+			
 			console.log("Clearing...")
-			bc.drawingPath = false
-			bc.drawNextPath()
 		})
     }
 
     bc.reboot = () => {
         if (isPi()) {
+            // Todo reboot Pi
             console.log("Reboot pressed -> rebooting RPI ")
         } else {
             console.log("Reboot pressed -> NOT rebooting PC")
@@ -332,7 +339,7 @@ var BotController = (cfg) => {
 
     bc.drawNextPath = () => {
         if (bc.paths.length > 0) {
-            bc.drawPath(bc.paths.shift())// return/remove first path from array
+            bc.drawPath(bc.paths.shift())
         } else {
             console.log("Done drawing all the paths. :)")
         }
@@ -343,7 +350,7 @@ var BotController = (cfg) => {
         console.log('generating path...')
         const commands = parseSVG(pathString);
 		makeAbsolute(commands);
-        // var commands = pathString.split(/(?=[MmLlHhVvZz])/)
+
         var cmdCount = commands.length
         console.log(cmdCount)
 		//console.log(commands)
@@ -352,17 +359,6 @@ var BotController = (cfg) => {
 		var cmdIndex = 0
         var prevCmd
 		
-		/*function longExecFunc(callback, count) {
-
-			for (var j = 0; j < count; j++) {
-				for (var i = 1; i < (1 << 30); i++) {
-					var q = Math.sqrt(1 << 30);
-				}
-			}
-			callback();
-		}*/
-		//longExecFunc(() => { console.log('done!')}, 5); 
-
         function doCommand() {
             if (cmdIndex < cmdCount) {
                 var cmd = commands[cmdIndex]
@@ -551,8 +547,6 @@ var BotController = (cfg) => {
 
             } else {
 				bc.penThen(1, function () { // 0=down, 1=up
-					//bc.moveTo(0, 0, doCommand)
-					
 					cmdCount = 0
 					cmdIndex = 0
 					console.log('path done!')
@@ -584,8 +578,6 @@ var BotController = (cfg) => {
         doCommand()
     }
 
-    /// NEW WAY (adaptive, per https://www.npmjs.com/package/adaptive-bezier-curve)
-    // TODO: combine cubic/quadratic versions into one with a parameter
     bc.drawCubicBezier = (points, scale = 1, callback) => {
         var n = 0// curret bezier step in iteration
         var pts = cBezier(points[0], points[1], points[2], points[3], scale)
