@@ -1,4 +1,3 @@
-![](drawbot.gif)
 
 # Drawbot ✏️🤖
 
@@ -25,7 +24,7 @@ Units should always be PIXELS -> the drawbot makes 1px to 1mm
 
 ## Wiring
 
-![](wiring/drawbot_wiring.jpg)
+![](wiring/Pi-Pinout.JPG) 
 
 ## Hardware Assembly
 
