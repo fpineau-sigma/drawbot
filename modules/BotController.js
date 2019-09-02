@@ -12,6 +12,9 @@ var qBezier = require('adaptive-quadratic-curve')
 const {parseSVG, makeAbsolute} = require('svg-path-parser');
 var arcToBezier = require('./arcToBezier')
 
+var currentX = 0;
+var currentY = 0;
+
 var BotController = (cfg) => {
 
     var bc = {}
@@ -145,7 +148,13 @@ var BotController = (cfg) => {
 			// lift pen up
             console.log('Pen: up')
             if (isPi()) { servo.servoWrite(servoUpPos) }
-		}
+        }
+        if (bc.localio){
+            bc.localio.emit('penState', {
+                pen: Number(dir)
+            })
+            //console.log('SendPen')
+        }
     }
 	
     bc.penThen = (dir, callback) => {
@@ -215,37 +224,23 @@ var BotController = (cfg) => {
         doStep()
     }
 
-    bc.rotate = (motorIndex, dirIndex, delay, steps, callback) => {
-        //console.log('bc.rotate', motorIndex, dirIndex, delay, steps)
-        bc.stepCounts[motorIndex] = Math.round(steps)
-        bc.steppeds[motorIndex] = 0
-        // var dir = (dirIndex==1) ? 0 : 1// reverses direction
-
-        // doStep, then wait for delay d
-        var doStep = function (d, m) {
-            bc.makeStep(m, dirIndex)// changed to dirIndex from dir
-            bc.steppeds[m]++
-            if (bc.steppeds[m] < bc.stepCounts[m]) {
-                setTimeout(function () {
-                    // console.log(m, bc.steppeds[m], "/", bc.stepCounts[m], d*bc.steppeds[m], "/", bc.stepCounts[m]*d)
-                    doStep(d, m)
-                }, d)
-            } else {
-                // done
-                if (callback != undefined) callback()
-            }
-        }
-        doStep(delay, motorIndex)
-    }
-
-
-
 
     /////////////////////////////////
     // DRAWING METHODS
 
+    bc.moveRelative = (x, y, callback, penDir = 1) => {
+        console.log('---------- bc.moveRelative', x, y, ' ----------')
+
+        var tox = Number(bc.pos.x) + Number(x)
+        var toy = Number(bc.pos.y) + Number(y)
+
+        
+
+        bc.moveTo(Number(tox), Number(toy), callback, 1)
+    }
+
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        //console.log('---------- bc.moveTo', x, y, ' ----------')
+        console.log('---------- bc.moveTo', x, y, ' ----------')
 
         if (x == 0 && y == 0) {
             console.log("-------> homing <-------")
@@ -392,8 +387,8 @@ var BotController = (cfg) => {
                     x1: checkValue(Number(cmd.x1)),
                     y1: checkValue(Number(cmd.y1)),
                     x2: checkValue(Number(cmd.x2)),
-                    y2: checkValue(Number(cmd.y2))
-
+                    y2: checkValue(Number(cmd.y2)),
+                    pen: Number(bc.penPos)
                 })
 
                 switch (cmdCode) {

@@ -30,9 +30,8 @@ var LocalServer = (cfg, controller) => {
         })
 
         socket.on('r', function (data) {
-            //console.log(Number(data.m), Number(data.dir), Number(data.d), Number(data.steps))
-            c.rotate(Number(data.m), Number(data.dir), Number(data.d), Number(data.steps))
-            
+            console.log(data.d, Number(data.x), Number(data.y))
+            c.moveRelative(data.x, data.y)
         })
 
         socket.on('drawpath',function(data){
@@ -61,7 +60,8 @@ var LocalServer = (cfg, controller) => {
         })
         socket.on('moveto',function(data){
 		    c.moveTo(data.x,data.y)
-		})
+        })
+        
         socket.on('getDXY', function(data){
             socket.emit('DXY',{
               d: c._D,

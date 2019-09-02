@@ -21,7 +21,7 @@ if (isPi()) {
 }
 
 // SETUP
-var botController, botClient, localServer
+var botController, localServer
 var config = Config('config.json', () => {
 
 	// Main Controller

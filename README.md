@@ -82,6 +82,18 @@ On the Drawbot Pi:
 
 * Run `npm start` or `sudo node draw.js` to start the Drawbot controller.
 
+## Adding a service and autostart bot and gui
+
+npm install forever -g
+.
+.
+.
+.
+https://www.instructables.com/id/Nodejs-App-As-a-RPI-Service-boot-at-Startup/
+
+update-rc.d drawBot defaults
+update-rc.d drawBot remove
+
 ## Controlling the Drawbot
 On a device connected to the same local network as the Drawbot Pi:
 
