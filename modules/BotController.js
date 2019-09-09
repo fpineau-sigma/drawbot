@@ -37,6 +37,7 @@ var BotController = (cfg) => {
         /////////////////////////////////
         // GPIO SETUP
         var gmOut = { mode: Gpio.OUTPUT }
+        vat gmIn = { mode: GPIO.INPUT} 
         var dirPins = [
             new Gpio(config.pins.leftDir, gmOut),
             new Gpio(config.pins.rightDir, gmOut)
@@ -45,6 +46,13 @@ var BotController = (cfg) => {
             new Gpio(config.pins.leftStep, gmOut),
             new Gpio(config.pins.rightStep, gmOut)
         ]
+
+        var buttonPins = [
+            new Gpio(config.pins.btnOne, gmIn), 
+            new Gpio(config.pins.btnTwo, gmIn),
+            new Gpio(config.pins.btnThree, gmIn)
+        ] 
+
         // set up servo GPIO pin
         var servo = new Gpio(config.pins.penServo, gmOut)
     } else {
