@@ -19,7 +19,10 @@
     "rightDir": 5,
     "leftStep": 19,
     "rightStep": 6,
-    "penServo": 26
+    "penServo": 26, 
+    "btnOne" :18,
+    "btnTwo":23,
+    "btnThree":24
   },
   "limits": {
 	"x":480,
