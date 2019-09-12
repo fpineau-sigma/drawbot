@@ -9,8 +9,8 @@
     "y": 100
   },
   "stepsPerMM": [
-    18,
-    18
+    10,
+    10
   ],
   "penPauseDelay": 100,
   "remoteURL": "",
