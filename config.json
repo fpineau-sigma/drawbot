@@ -3,14 +3,14 @@
   "swapDirections": false,
   "localPort": 80,
   "baseDelay": 1,
-  "d": 570,
+  "d": 925,
   "startPos": {
-    "x": 50,
-    "y": 100
+    "x": 185,
+    "y": 165
   },
   "stepsPerMM": [
-    18,
-    18
+    10,
+    10
   ],
   "penPauseDelay": 100,
   "remoteURL": "",
@@ -19,13 +19,13 @@
     "rightDir": 5,
     "leftStep": 19,
     "rightStep": 6,
-    "penServo": 26, 
-    "btnOne" :18,
-    "btnTwo":23,
-    "btnThree":24
+    "penServo": 26,
+    "btnOne": 18,
+    "btnTwo": 23,
+    "btnThree": 24
   },
   "limits": {
-	"x":480,
-	"y":600
+    "x": 480,
+    "y": 600
   }
 }
