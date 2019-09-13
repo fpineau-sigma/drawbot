@@ -37,7 +37,7 @@ var BotController = (cfg) => {
         /////////////////////////////////
         // GPIO SETUP
         var gmOut = { mode: Gpio.OUTPUT }
-        var gmIn = { mode: Gpio.INPUT} 
+        var gmIn = { mode: Gpio.INPUT}
         var dirPins = [
             new Gpio(config.pins.leftDir, gmOut),
             new Gpio(config.pins.rightDir, gmOut)
