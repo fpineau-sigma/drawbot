@@ -36,11 +36,13 @@ class DrawBot extends EventEmitter {
 
   async penUp(up = false) {
     if (this.pen.isOn != up) {
+      console.log("penUp", up);
       this.emit("penUp", up);
       await this.pen.write(up);
     }
   }
   async step({ lft = null, rgt = null }) {
+    console.log("step", { lft, rgt });
     await Promise.all([
       ...(lft === null
         ? []
