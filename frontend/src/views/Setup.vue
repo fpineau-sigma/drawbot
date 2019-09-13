@@ -1,0 +1,82 @@
+<template>
+  <div class="view">
+    <main v-if="config">
+      <NumberInput v-model.number="config.d" label="d" autofocus />
+      <NumberInput v-model.number="config.x" label="x" />
+      <NumberInput v-model.number="config.y" label="y" />
+    </main>
+    <aside>
+      <div class="grid">
+        <Button
+          @click="addNum(n)"
+          :size="size"
+          v-for="n in 9"
+          :key="n"
+          :value="n"
+        />
+        <Button @click="addNum(0)" :size="size" value="0" />
+        <Button @click="bksp()" :size="size" icon="arrow-left-circle" />
+        <Button @click="clear()" :size="size" icon="close" />
+      </div>
+    </aside>
+  </div>
+</template>
+
+<script>
+import { mapState } from "vuex";
+
+import NumberInput from "@/components/NumberInput.vue";
+import Button from "@/components/Button.vue";
+
+export default {
+  name: "Setup",
+  components: { NumberInput, Button },
+  data: () => ({
+    size: 29,
+    config: null
+  }),
+  sockets: {
+    config(config) {
+      this.config = config;
+    }
+  },
+  computed: {
+    ...mapState(["latestInput"])
+  },
+  methods: {
+    _changeInputValue(fn) {
+      if (this.latestInput) {
+        this.latestInput.value = fn(this.latestInput.value);
+        this.latestInput.focus();
+        this.latestInput.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    },
+    addNum(n) {
+      this._changeInputValue(value => Math.abs(+`${value}${n}`));
+    },
+    bksp() {
+      this._changeInputValue(value => value.slice(0, -1));
+    },
+    clear() {
+      this._changeInputValue(() => "");
+    },
+    test(e) {
+      console.log("test", e);
+    }
+  },
+  activated: function() {
+    this.$socket.client.emit("getConfig");
+  },
+  deactivated: function() {
+    this.$socket.client.emit("updateConfig", this.config);
+    this.config = null;
+  }
+};
+</script>
+
+<style scoped>
+.grid {
+  display: grid;
+  grid-template: repeat(6, min-content) / repeat(2, min-content);
+}
+</style>

@@ -1,0 +1,18 @@
+{
+  "d": 570,
+  "x": 50,
+  "y": 100,
+  "swapDirections": false,
+  "stepsPerMM": [18, 18],
+  "penPauseDelay": 100,
+  "pins": {
+    "leftDir": 13,
+    "rightDir": 5,
+    "leftStep": 19,
+    "rightStep": 6,
+    "penServo": 26,
+    "btnOne": 18,
+    "btnTwo": 23,
+    "btnThree": 24
+  }
+}
