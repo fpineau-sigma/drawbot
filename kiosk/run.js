@@ -21,11 +21,17 @@ const isFullscreen = !!size;
 
 (function run() {
   carlo.launch(options).then(app => {
-    app.on("exit", () => run());
+    app.on("exit", () => {
+      console.log('kiosk exits');
+      run();
+    });
 
     setTimeout(() => {
       app.evaluate(url => (location.href = url), `http://localhost:${port}`);
       if (!size) app.mainWindow().fullscreen();
     }, 1000);
-  }, run);
+  }, () => {
+    console.log('kiosk dies');
+    run();
+  }));
 })();
