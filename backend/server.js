@@ -21,7 +21,8 @@ io.on("connection", function(socket) {
   socket.on("updateConfig", cfg => drawbot.setConfig(config.update(cfg)));
   socket.on("getConfig", () => socket.emit("config", config.data));
   socket.on("moveBy", ({ x, y }) => drawbot.moveBy(x, y));
-  socket.on("moveHome", () => drawbot.home());
+  socket.on("home", () => drawbot.home());
+  socket.on("penUp", isUp => drawbot.penUp(isUp));
   socket.on("drawSvgPath", path => {
     drawSvgPath(path, drawbot.createSequence());
     drawbot.startSequence();

@@ -19,10 +19,10 @@ export default new Vuex.Store({
     },
     TOGGLE_PEN(state) {
       state.penUp = !state.penUp;
-      this._vm.$socket.client.emit("pen", state.penUp ? "up" : "down");
+      this._vm.$socket.client.emit("penUp", state.penUp);
     },
-    SOCKET_PEN_UPDATE(state, pen) {
-      state.penUp = pen === "up";
+    SOCKET_PEN_UP(state, isUp) {
+      state.penUp = isUp;
     },
     LATEST_INPUT(state, input) {
       state.latestInput = input;

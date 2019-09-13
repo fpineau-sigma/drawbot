@@ -4,7 +4,7 @@
       <div class="grid">
         <Button @click="move({ y: -1 })" icon="arrow-up" />
         <Button @click="move({ x: -1 })" icon="arrow-left" />
-        <Button @click="$socket.client.emit('moveHome')" icon="size-actual" />
+        <Button @click="$socket.client.emit('home')" icon="size-actual" />
         <Button @click="move({ x: 1 })" icon="arrow-right" />
         <Button @click="move({ y: 1 })" icon="arrow-down" />
       </div>
