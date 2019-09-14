@@ -1,6 +1,6 @@
 <!-- inspirated by https://github.com/nkoik/vue-simple-line-icons -->
 <template>
-  <div class="icon">
+  <span class="icon">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -8,7 +8,7 @@
     >
       <path :d="path" />
     </svg>
-  </div>
+  </span>
 </template>
 
 <script>

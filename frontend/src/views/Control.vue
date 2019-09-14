@@ -16,7 +16,8 @@
 
       <Button
         value="PEN"
-        :style="{ marginTop: '20px', backgroundColor: penUp ? 'red' : null }"
+        class="mt"
+        :style="{ backgroundColor: penUp ? 'red' : null }"
         @click="togglePen()"
       />
     </aside>

@@ -38,12 +38,12 @@ export default {
       this.preview.lineTo(x, y);
       this.preview.stroke();
       this.drawCrossHair(x, y);
-    },
+    }
   },
   methods: {
     drawCrossHair(x, y) {
-      x = ~~x + .5;
-      y = ~~y + .5;
+      x = ~~x + 0.5;
+      y = ~~y + 0.5;
       this.crosshair.clearRect(0, 0, this.width, this.height);
       this.crosshair.beginPath();
       this.crosshair.strokeStyle = "#333";
@@ -62,7 +62,7 @@ export default {
 
       this.preview.beginPath();
       this.preview.lineWidth = "3";
-      this.preview.strokeStyle = "#FF0000"
+      this.preview.strokeStyle = "#FF0000";
 
       const reader = new FileReader();
       reader.onload = ({ target: { result: svg } }) => {

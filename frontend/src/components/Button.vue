@@ -26,7 +26,7 @@ export default {
       return Object.assign(
         {},
         this.value.length > 3 ? { width: "auto" } : {},
-        this.size ? { fontSize: `${this.size}px` } : {}
+        this.size ? { fontSize: `calc(var(--button-size) * ${this.size}` } : {}
       );
     },
     fontSize() {
@@ -71,7 +71,7 @@ button {
   padding: 0.2em;
   font-size: var(--button-size);
   margin: var(--margin);
-  border-radius: 2px;
+  border-radius: 0.05em;
   border: none;
   color: inherit;
   user-select: none;
@@ -84,7 +84,7 @@ button:hover,
 button.active {
   opacity: 1;
 }
-button * {
+button span {
   display: flex;
   line-height: 1;
   font-size: 0.6em;

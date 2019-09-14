@@ -38,11 +38,12 @@ export default {
 
 <style>
 :root {
-  --screen-width: 320px;
-  --screen-height: 240px;
-  --title-height: 23px;
-  --button-size: 35px;
-  --margin: 3px;
+  --screen-width: 100vw;
+  --screen-height: calc(100vw / 4 * 3);
+  --screen-height: 100vh;
+  --title-height: calc(var(--screen-height) * 0.1);
+  --button-size: calc(var(--screen-height) * 0.15);
+  --margin: calc(var(--screen-height) * 0.0125);
   --primary: #00629f;
 }
 
@@ -51,7 +52,7 @@ body {
 }
 
 #app {
-  font: normal 20px/1 "Avenir", Helvetica, Arial, sans-serif;
+  font: normal 1em / 1 "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #222;
@@ -91,6 +92,9 @@ nav button {
   display: grid;
   grid-template: 1fr / 1fr min-content;
   grid-template-areas: "main aside";
+}
+.mt {
+  margin-top: calc(var(--margin) * 2);
 }
 main {
   grid-area: main;

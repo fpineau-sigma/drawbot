@@ -28,13 +28,13 @@ export default {
 <style>
 .input {
   display: flex;
-  height: var(--btn-size);
-  font-size: inherit;
+  height: var(--button-size);
   box-sizing: border-box;
-  border-radius: 2px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.05em;
+  border: 0.05em solid rgba(255, 255, 255, 0.2);
   user-select: none;
   margin: var(--margin);
+  font-size: calc(var(--button-size) * 0.8);
 }
 .input label {
   display: flex;

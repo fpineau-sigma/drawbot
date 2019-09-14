@@ -9,14 +9,14 @@
       <div class="grid">
         <Button
           @click="addNum(n)"
-          :size="size"
+          :size="buttonSize"
           v-for="n in 9"
           :key="n"
           :value="n"
         />
-        <Button @click="addNum(0)" :size="size" value="0" />
-        <Button @click="bksp()" :size="size" icon="arrow-left-circle" />
-        <Button @click="clear()" :size="size" icon="close" />
+        <Button @click="addNum(0)" :size="buttonSize" value="0" />
+        <Button @click="bksp()" :size="buttonSize" icon="arrow-left-circle" />
+        <Button @click="clear()" :size="buttonSize" icon="close" />
       </div>
     </aside>
   </div>
@@ -32,7 +32,7 @@ export default {
   name: "Setup",
   components: { NumberInput, Button },
   data: () => ({
-    size: 29,
+    buttonSize: 0.8,
     config: null
   }),
   sockets: {
