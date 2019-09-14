@@ -3,17 +3,18 @@
   "version": "1.0.1",
   "private": true,
   "scripts": {
-    "vue:serve": "cross-env VUE_APP_SERVER_PORT=${PORT-3000} vue-cli-service serve --port=8080",
-    "vue:build": "cross-env VUE_APP_SERVER_PORT=${PORT-3000} vue-cli-service build",
-    "server": "NODE_PORT=${PORT-3000} node backend/server.js",
-    "server:dev": "cross-env NODE_PORT=${PORT-3000} nodemon --watch backend backend/server.js",
-    "kiosk": "NODE_PORT=${PORT-3000} node kiosk/run.js",
-    "kiosk:dev": "NODE_PORT=8080 node kiosk/run.js 320x240",
-    "start": "concurrently -k -r -i \"npm:server\" \"npm:kiosk\"",
-    "dev:browser": "concurrently -k -r -i \"npm:vue:serve\" \"npm:server:dev\"",
-    "dev": "concurrently -k -r -i \"npm:kiosk:dev\" \"npm:vue:serve\" \"npm:server:dev\"",
-    "build": "concurrently -k -r -i \"npm:vue:build\"",
-    "playground:icons": "cd frontend && vue serve -o playground/Icons.vue"
+    "vue:serve": "vue-cli-service serve --port=$npm_package_config_vue_serve_port --open",
+    "vue:build": "vue-cli-service build",
+    "playground:icons": "cd frontend && vue serve -o playground/Icons.vue",
+    "server:watch": "nodemon --watch backend backend/server.js",
+    "server:kiosk": "cross-env KIOSK=1 node backend/server.js",
+    "dev": "concurrently -k -r -i \"npm:server:watch\" \"npm:vue:serve\"",
+    "kiosk": "npm run server:kiosk",
+    "kiosk:rebuild": "npm i && npm run vue:build && npm run kiosk"
+  },
+  "config": {
+    "port": 3000,
+    "vue_serve_port": 8080
   },
   "dependencies": {
     "adaptive-bezier-curve": "^1.0.3",

@@ -1,5 +1,6 @@
 dist/
-.profile/
+.local-data/
+.user-data/
 *.psd
 
 .DS_Store
