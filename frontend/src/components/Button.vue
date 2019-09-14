@@ -79,6 +79,7 @@ button {
   outline: none;
   opacity: 0.7;
   background: rgba(255, 255, 255, 0.2);
+  background: white !important;
 }
 button:hover,
 button.active {
@@ -91,6 +92,7 @@ button span {
   background: blue;
 }
 button svg {
+  background: rgba(0, 255, 0, 0.5);
   display: block;
 }
 </style>
