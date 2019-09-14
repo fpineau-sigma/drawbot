@@ -79,7 +79,6 @@ button {
   outline: none;
   opacity: 0.7;
   background: rgba(255, 255, 255, 0.2);
-  background: white !important;
 }
 button:hover,
 button.active {
@@ -89,10 +88,8 @@ button span {
   display: flex;
   line-height: 1;
   font-size: 0.6em;
-  background: blue;
 }
 button svg {
-  background: rgba(0, 255, 0, 0.5);
   display: block;
   margin: 0;
   padding: 0;
