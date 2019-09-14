@@ -88,9 +88,9 @@ button span {
   display: flex;
   line-height: 1;
   font-size: 0.6em;
+  background: blue;
 }
 button svg {
   display: block;
-  background: yellow;
 }
 </style>
