@@ -89,4 +89,8 @@ button span {
   line-height: 1;
   font-size: 0.6em;
 }
+button svg {
+  display: block;
+  background: yellow;
+}
 </style>
