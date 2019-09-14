@@ -16,7 +16,7 @@ const launch = async port => {
     localDataDir: path.join(__dirname, ".local-data"),
     userDataDir: path.join(__dirname, ".user-data"),
     executablePath: await findChrome(),
-    // TODO check remote debugging | pipe: true, and see browser.wsEndpoint()
+    pipe: true,
     headless: false,
     args: [
       // https://peter.sh/experiments/chromium-command-line-switches/
@@ -32,7 +32,7 @@ const launch = async port => {
       "--disable-infobars",
       "--disable-session-crashed-bubble",
       "--noerrdialogs",
-      `--remote-debugging-port=9222`
+      "--remote-debugging-port=9222"
     ],
     ignoreDefaultArgs: ["--mute-audio"],
     defaultViewport: null

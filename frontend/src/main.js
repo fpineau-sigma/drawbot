@@ -6,7 +6,9 @@ import store from "./store";
 import VueSocketIOExt from "vue-socket.io-extended";
 import io from "socket.io-client";
 
-const socket = io(`http://localhost:${process.env.VUE_APP_SERVER_PORT}/`);
+const socket = io(
+  `http://${location.hostname}:${process.env.VUE_APP_SERVER_PORT}/`
+);
 Vue.use(VueSocketIOExt, socket, { store });
 
 Vue.config.productionTip = false;
