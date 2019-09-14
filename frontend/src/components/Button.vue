@@ -94,5 +94,9 @@ button span {
 button svg {
   background: rgba(0, 255, 0, 0.5);
   display: block;
+  margin: 0;
+  padding: 0;
+  width: 1em;
+  height: 1em;
 }
 </style>
