@@ -1,4 +1,3 @@
-const path = require("path");
 const puppeteer = require("puppeteer-core");
 
 const findChrome = async () =>
@@ -13,8 +12,8 @@ const launch = async port => {
   // https://github.com/GoogleChrome/puppeteer/blob/v1.20.0/docs/api.md#puppeteerlaunchoptions
   const options = {
     timeout: 120000,
-    localDataDir: path.join(__dirname, ".local-data"),
-    userDataDir: path.join(__dirname, ".user-data"),
+    localDataDir: `${process.cwd()}/.local-data`,
+    userDataDir: `${process.cwd()}/.user-data`,
     executablePath: await findChrome(),
     pipe: true,
     headless: false,
@@ -32,6 +31,7 @@ const launch = async port => {
       "--disable-infobars",
       "--disable-session-crashed-bubble",
       "--noerrdialogs",
+      "--no-sandbox",
       "--remote-debugging-port=9222"
     ],
     ignoreDefaultArgs: ["--mute-audio"],
