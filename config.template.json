@@ -1,9 +1,9 @@
 {
   "canvas": {
-    "d": 570,
+    "d": 920,
     "home": {
       "x": 50,
-      "y": 100
+      "y": 180
     }
   },
   "pen": {
@@ -13,7 +13,7 @@
     }
   },
   "lft": {
-    "stepsPerMM": 18,
+    "stepsPerMM": 10,
     "stepper": {
       "delay": 1,
       "invert": false,
@@ -26,7 +26,7 @@
     }
   },
   "rgt": {
-    "stepsPerMM": 18,
+    "stepsPerMM": 10,
     "stepper": {
       "delay": 1,
       "dir": {
