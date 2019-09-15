@@ -1,132 +1,209 @@
 const EventEmitter = require("events");
-const { Servo, Stepper } = require("./gpio-devices.js");
+const { ToggleServo, Stepper } = require("./gpio-devices.js");
+const svgToSequence = require("./svg-to-sequence");
+const Store = require("data-store");
+const debug = require("debug")("drawbot");
+
+const config = new Store(
+  { path: "config.json" },
+  require("../../config.template.json")
+);
+const tmp = new Store({ path: ".tmp" });
+const progress = new Store({ path: ".progress" });
 
 class DrawBot extends EventEmitter {
   constructor() {
     super();
     this.current = { x: 0, y: 0, steps: { lft: 0, rgt: 0 } };
+
+    const { servo: penServo } = config.get("pen");
+    this.pen = new ToggleServo(penServo, true, true);
+
+    const { stepper: lftStepper } = config.get("lft");
+    this.lft = new Stepper(lftStepper);
+
+    const { stepper: rgtStepper } = config.get("rgt");
+    this.rgt = new Stepper(rgtStepper);
+
+    debug("drawbot initialized");
   }
-  setConfig(config) {
-    this.config = config;
 
-    const { penServo, penPauseDelay } = config.pins;
-    this.pen = new Servo(penServo, { duration: penPauseDelay });
-
-    const { leftDir, leftStep } = config.pins;
-    this.lft = new Stepper(leftDir, leftStep);
-
-    const { rightDir, rightStep } = config.pins;
-    this.rgt = new Stepper(rightDir, rightStep);
-
-    const { swapDirections } = config;
-    this.swapStep = !!swapDirections;
-
-    this.current.steps = this.toSteps({});
+  getCanvasConfig() {
+    return config.get("canvas");
   }
-  toSteps({ x = 0, y = 0 }) {
-    const { x: startX, y: startY, d } = this.config;
-    const lftStringLength = Math.sqrt(x + startX * x + (y += startY) * y);
-    const rgtStringLength = Math.sqrt((d - x) * (d - x) + y * y);
-    const [lftStepsPerMM, rgtStepsPerMM] = this.config.stepsPerMM;
+  setCanvasConfig({ d, home: { x, y } }) {
+    let canvas = { d, home: { x, y } };
+    canvas = Object.assign({}, this.getCanvasConfig(), canvas);
+    config.set("canvas", canvas);
+  }
+
+  get isPenUp() {
+    return this.pen.isOn;
+  }
+
+  async doPenUp(up = false) {
+    if (this.isPenUp != up) {
+      debug("pen %s", up ? "up" : "down");
+      debug("pen");
+      this.emit("penUp", up);
+      await this.pen.set(up);
+      debug("pen");
+    }
+  }
+  async doSteps({ direction, steps: { lft, rgt, max } }) {
+    for (let i = 0, ls = lft, rs = rgt; i < max; i++, ls += lft, rs += rgt) {
+      debug("step");
+      const promises = [];
+      if (ls >= max) {
+        ls -= max;
+        promises.push(this.lft.set(direction.lft));
+      }
+      if (rs >= max) {
+        rs -= max;
+        promises.push(this.rgt.set(direction.rgt));
+      }
+      await Promise.all(promises);
+      debug("step");
+    }
+  }
+
+  interpolate(x, y, current = this.current) {
+    const {
+      canvas: {
+        d,
+        home: { x: hx, y: hy }
+      },
+      lft: { stepsPerMM: lftStepsPerMM },
+      rgt: { stepsPerMM: rgtStepsPerMM }
+    } = config.data;
+
+    // TODO add virtual home; here?
+
+    const length = {
+      lft: Math.sqrt(Math.pow(x + hx, 2) + Math.pow(y + hy, 2)),
+      rgt: Math.sqrt(Math.pow(d - (x + hx), 2) + Math.pow(y + hy, 2))
+    };
+
+    const distance = Math.abs(Math.abs(length.lft) - Math.abs(length.rgt));
+    // TODO add virtual home; or here?
+
+    const currentSteps = {
+      lft: Math.round(length.lft * lftStepsPerMM) - current.steps.lft,
+      rgt: Math.round(length.rgt * rgtStepsPerMM) - current.steps.rgt
+    };
+
+    const direction = {
+      lft: currentSteps.lft <= 0,
+      rgt: currentSteps.rgt > 0
+    };
+
+    const steps = {
+      lft: Math.abs(currentSteps.lft),
+      rgt: Math.abs(currentSteps.rgt),
+      max: Math.max(steps.lft, steps.rgt)
+    };
+
     return {
-      lft: Math.round(lftStringLength * lftStepsPerMM),
-      rgt: Math.round(rgtStringLength * rgtStepsPerMM)
+      distance,
+      current: { x, y, steps: currentSteps },
+      direction,
+      steps,
+      duration: Math.max(steps.lft * this.lft.delay, steps.rgt * this.rgt.delay)
     };
   }
 
-  async penUp(up = false) {
-    if (this.pen.isOn != up) {
-      console.log("penUp", up);
-      this.emit("penUp", up);
-      await this.pen.write(up);
-    }
-  }
-  async step({ lft = null, rgt = null }) {
-    console.log("step", { lft, rgt });
-    await Promise.all([
-      ...(lft === null
-        ? []
-        : [this.lft.write((this.swapStep && !lft) || (!this.swapStep && lft))]),
-      ...(rgt === null
-        ? []
-        : [this.rgt.write((this.swapStep && !rgt) || (!this.swapStep && rgt))])
-    ]);
-  }
-
-  async moveTo(x, y, penUp = true, evt = {}) {
-    await this.penUp(penUp);
-    this.emit(penUp ? "moveTo" : "lineTo", { x, y, ...evt });
-
-    let { lft, rgt } = this.toSteps({ x, y });
-
-    const lftDelta = lft - this.current.steps.lft;
-    const rgtDelta = rgt - this.current.steps.rgt;
-
-    const lftDir = !(lftDelta > 0);
-    const rgtDir = rgtDelta > 0;
-
-    const lftSteps = Math.abs(lftDelta);
-    const rgtSteps = Math.abs(rgtDelta);
-
-    const maxSteps = Math.round(Math.max(lftSteps, rgtSteps));
-    for (
-      let i = 0, ls = 0, rs = 0;
-      i < maxSteps;
-      i++, ls += lftSteps, rs += rgtSteps
-    ) {
-      const step = {};
-
-      if (ls >= maxSteps) {
-        ls -= maxSteps;
-        step.lft = lftDir;
+  stats(sequence) {
+    let _isMove = this.isPenUp;
+    let _current = this.current;
+    const total = {
+      distance: 0,
+      duration: 0
+    };
+    for (let [x, y, isMove] of sequence) {
+      const { distance, duration, current } = this.interpolate(x, y, _current);
+      _current = current;
+      total.distance += distance;
+      total.duration += duration;
+      if (_isMove !== isMove) {
+        _isMove = isMove;
+        total.duration += this.pen.delay;
       }
-      if (rs >= maxSteps) {
-        rs -= maxSteps;
-        step.rgt = rgtDir;
-      }
-      await this.step(step);
     }
+    return total;
+  }
+  async draw(x, y, penUp) {
+    await this.doPenUp(penUp);
+    debug("drawTo", { x, y, penUp });
+    debug("draw");
+    const { duration, distance, direction, steps } = this.interpolate(x, y);
+    this.emit("draw", { x, y, isMove: penUp, duration, distance });
+    await this.doSteps({ direction, steps });
+    debug("draw");
+  }
 
-    this.current = { x, y, steps: { lft, rgt } };
+  async moveTo(x, y) {
+    return await this.draw(x, y, true);
   }
   async moveBy(x, y) {
     return this.moveTo(this.current.x + x, this.current.y + y);
   }
   async lineTo(x, y) {
-    return this.moveTo(x, y, false);
+    return await this.draw(x, y, false);
   }
   async lineBy(x, y) {
-    return this.moveTo(this.current.x + x, this.current.y + y, false);
+    return this.lineTo(this.current.x + x, this.current.y + y);
   }
   async home() {
-    const { x, y } = this.config;
+    const { x, y } = config.get("canvas.home");
+    debug("home");
     this.moveTo(x, y);
   }
 
-  stopSequence() {
-    this.sequence = [];
-    this.sequenceIsRunning = false;
-    this.sequenceStep = 0;
-  }
-  createSequence() {
-    this.stopSequence();
-    return {
-      x: this.current.x,
-      y: this.current.y,
-      moveTo: (x, y) => this.sequence.push([x, y, true]),
-      lineTo: (x, y) => this.sequence.push([x, y, false])
-    };
-  }
-  async startSequence() {
-    this.sequenceIsRunning = true;
-    console.log(this.sequence);
-    while (this.sequenceIsRunning && this.sequenceStep < this.sequence.length) {
-      const progress = this.sequenceStep / this.sequence.length;
-      await this.moveTo(...this.sequence[this.sequenceStep++], { progress });
+  clearSequence() {
+    if (progress.get("isRunning", false)) {
+      progress.del("isRunning");
+      progress.del("i");
+      tmp.del("svg");
+      this.home();
     }
   }
+  async startSequence() {
+    const sequence = tmp.get("svg.sequence");
+    progress.set("isRunning", true);
+    let i = progress.get("i", 0);
+
+    while (progress.get("isRunning") && i < sequence.length) {
+      progress.set("i", ++i);
+      await this.draw(...sequence[i]);
+    }
+
+    this.clearSequence();
+  }
   pauseSequence() {
-    this.sequenceIsRunning = false;
+    progress.set("isRunning", false);
+  }
+
+  svgPathToSequence(svg, path) {
+    this.clearSequence();
+    debug("svgPathToSequence");
+    const sequence = svgToSequence(path);
+    tmp.set("svg", { svg, sequence });
+    debug("svgPathToSequence");
+    this.prepareDraw();
+  }
+  prepareDraw() {
+    const { svg = null, sequence = [] } = tmp.get("svg", {});
+    if (svg !== null) {
+      debug("stats");
+      const stats = this.stats(sequence);
+      debug("stats");
+      const index = progress.get("i", 0);
+      let actual = null;
+      if (index !== 0) {
+        actual = this.stats(sequence.slice(0, index));
+      }
+      this.emit("prepareDraw", { svg, stats, actual });
+    }
   }
 }
 

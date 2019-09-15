@@ -1,16 +1,43 @@
 {
-  "d": 570,
-  "x": 50,
-  "y": 100,
-  "swapDirections": false,
-  "stepsPerMM": [18, 18],
-  "penPauseDelay": 100,
+  "canvas": {
+    "d": 570,
+    "home": {
+      "x": 50,
+      "y": 100
+    }
+  },
+  "pen": {
+    "servo": {
+      "pin": 26,
+      "delay": 100
+    }
+  },
+  "lft": {
+    "stepsPerMM": 18,
+    "stepper": {
+      "delay": 1,
+      "invert": false,
+      "dir": {
+        "pin": 13
+      },
+      "step": {
+        "pin": 19
+      }
+    }
+  },
+  "rgt": {
+    "stepsPerMM": 18,
+    "stepper": {
+      "delay": 1,
+      "dir": {
+        "pin": 5
+      },
+      "step": {
+        "pin": 6
+      }
+    }
+  },
   "pins": {
-    "leftDir": 13,
-    "rightDir": 5,
-    "leftStep": 19,
-    "rightStep": 6,
-    "penServo": 26,
     "btnOne": 18,
     "btnTwo": 23,
     "btnThree": 24

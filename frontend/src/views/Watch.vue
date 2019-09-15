@@ -1,8 +1,8 @@
 <template>
   <div class="view">
-    <main v-if="image" @click="startDraw">
+    <main v-if="svg">
       <div id="preview">
-        <img ref="image" :src="image" @load="startDraw" />
+        <img ref="image" :src="src" @load="startDraw" />
         <canvas ref="preview"></canvas>
         <canvas ref="crosshair"></canvas>
       </div>
@@ -16,12 +16,16 @@ import { mapState } from "vuex";
 export default {
   name: "Watch",
   data: () => ({
-    image: null,
     width: 0,
     height: 0
   }),
   computed: {
-    ...mapState(["file"]),
+    ...mapState(["svg"]),
+    src: function() {
+      return URL.createObjectURL(
+        new Blob([this.svg], { type: "image/svg+xml" })
+      );
+    },
     preview: function() {
       return this.$refs.preview.getContext("2d");
     },
@@ -30,31 +34,32 @@ export default {
     }
   },
   sockets: {
-    moveTo({ x, y }) {
-      this.preview.moveTo(x, y);
-      this.drawCrossHair(x, y);
+    drawTo(x, y, justMove) {
+      this.draw(x, y, justMove, true);
     },
-    lineTo({ x, y }) {
-      this.preview.lineTo(x, y);
-      this.preview.stroke();
-      this.drawCrossHair(x, y);
+    resumeSession({ drawings }) {
+      drawings.forEach(drawing => this.draw(...drawing));
     }
   },
   methods: {
-    drawCrossHair(x, y) {
-      x = ~~x + 0.5;
-      y = ~~y + 0.5;
-      this.crosshair.clearRect(0, 0, this.width, this.height);
-      this.crosshair.beginPath();
-      this.crosshair.strokeStyle = "#333";
-      this.crosshair.lineWidth = "3";
-      this.crosshair.moveTo(x - 20, y);
-      this.crosshair.lineTo(x + 20, y);
-      this.crosshair.stroke();
-      this.crosshair.beginPath();
-      this.crosshair.moveTo(x, y - 20);
-      this.crosshair.lineTo(x, y + 20);
-      this.crosshair.stroke();
+    draw(x, y, justMove, crosshair = false) {
+      if (justMove) {
+        this.preview.moveTo(x, y);
+      } else {
+        this.preview.lineTo(x, y);
+        this.preview.stroke();
+      }
+      if (crosshair) {
+        this.crosshair.clearRect(0, 0, this.width, this.height);
+        this.crosshair.beginPath();
+        this.crosshair.moveTo(x - 20, y);
+        this.crosshair.lineTo(x + 20, y);
+        this.crosshair.stroke();
+        this.crosshair.beginPath();
+        this.crosshair.moveTo(x, y - 20);
+        this.crosshair.lineTo(x, y + 20);
+        this.crosshair.stroke();
+      }
     },
     startDraw() {
       this.width = this.$refs.preview.width = this.$refs.crosshair.width = this.$refs.image.naturalWidth;
@@ -64,21 +69,8 @@ export default {
       this.preview.lineWidth = "3";
       this.preview.strokeStyle = "#FF0000";
 
-      const reader = new FileReader();
-      reader.onload = ({ target: { result: svg } }) => {
-        const svgDoc = new DOMParser().parseFromString(svg, "image/svg+xml");
-        const singlePath = [...svgDoc.querySelectorAll("path")]
-          .map(path => path.getAttribute("d").replace(/\s+/g, " "))
-          .join(" ")
-          .trim();
-        this.$socket.client.emit("drawSvgPath", singlePath);
-      };
-      reader.readAsText(this.file);
-    }
-  },
-  watch: {
-    file(file) {
-      this.image = URL.createObjectURL(file);
+      this.crosshair.strokeStyle = "#333";
+      this.crosshair.lineWidth = "3";
     }
   }
 };

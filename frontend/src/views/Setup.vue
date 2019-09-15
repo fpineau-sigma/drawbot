@@ -2,8 +2,8 @@
   <div class="view">
     <main v-if="config">
       <NumberInput v-model.number="config.d" label="d" autofocus />
-      <NumberInput v-model.number="config.x" label="x" />
-      <NumberInput v-model.number="config.y" label="y" />
+      <NumberInput v-model.number="config.home.x" label="x" />
+      <NumberInput v-model.number="config.home.y" label="y" />
     </main>
     <aside>
       <div class="grid">
@@ -36,7 +36,7 @@ export default {
     config: null
   }),
   sockets: {
-    config(config) {
+    onConfig(config) {
       this.config = config;
     }
   },
@@ -65,10 +65,10 @@ export default {
     }
   },
   activated: function() {
-    this.$socket.client.emit("getConfig");
+    this.$socket.client.emit("getCanvasConfig");
   },
   deactivated: function() {
-    this.$socket.client.emit("updateConfig", this.config);
+    this.$socket.client.emit("setCanvasConfig", this.config);
     this.config = null;
   }
 };

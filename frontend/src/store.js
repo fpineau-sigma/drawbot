@@ -8,7 +8,7 @@ export default new Vuex.Store({
     penUp: true,
     controlSteps: 10,
     latestInput: null,
-    file: null
+    svg: null
   },
   mutations: {
     CONTROL_STEPS(state, steps) {
@@ -17,23 +17,34 @@ export default new Vuex.Store({
     UPDATE_KEY(state, { key, value }) {
       state[key] = value;
     },
-    TOGGLE_PEN(state) {
-      state.penUp = !state.penUp;
-      this._vm.$socket.client.emit("penUp", state.penUp);
-    },
-    SOCKET_PEN_UP(state, isUp) {
+    SOCKET_PENUP(state, isUp) {
+      console.log({ isUp });
       state.penUp = isUp;
     },
     LATEST_INPUT(state, input) {
       state.latestInput = input;
     },
-    SELECTED_FILE(state, file) {
-      state.file = file;
+    SVG(state, svg) {
+      state.svg = svg;
     }
   },
   actions: {
-    togglePen({ commit }) {
-      commit("TOGGLE_PEN");
+    readFile({ commit }, file) {
+      const reader = new FileReader();
+      reader.onload = ({ target: { result } }) => {
+        commit("SVG", result);
+
+        const svgPath = [
+          ...new DOMParser()
+            .parseFromString(result, "image/svg+xml")
+            .querySelectorAll("path")
+        ]
+          .map(path => path.getAttribute("d").replace(/\s+/g, " "))
+          .join(" ")
+          .trim();
+        this._vm.$socket.client.emit("drawSvg", result, svgPath);
+      };
+      reader.readAsText(file);
     }
   }
 });

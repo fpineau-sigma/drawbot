@@ -5,7 +5,7 @@
       <Button
         type="file"
         accept="image/svg+xml"
-        @file="selectedFile"
+        @file="fileSelected"
         icon="folder"
       />
       <LinkButton to="/control" icon="cursor-move" />
@@ -20,15 +20,22 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import Button from "@/components/Button.vue";
 import LinkButton from "@/components/LinkButton.vue";
 
 export default {
   name: "app",
   components: { Button, LinkButton },
+  sockets: {
+    resumeSession() {
+      // TODO
+    }
+  },
   methods: {
-    selectedFile(file) {
-      this.$store.commit("SELECTED_FILE", file);
+    ...mapActions(["readFile"]),
+    fileSelected(file) {
+      this.readFile(file);
       if (this.$router.currentRoute.name !== "watch")
         this.$router.push({ name: "watch" });
     }

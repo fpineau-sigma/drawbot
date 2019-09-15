@@ -4,7 +4,7 @@
       <div class="grid">
         <Button @click="move({ y: -1 })" icon="arrow-up" />
         <Button @click="move({ x: -1 })" icon="arrow-left" />
-        <Button @click="$socket.client.emit('home')" icon="size-actual" />
+        <Button @click="move({})" icon="size-actual" />
         <Button @click="move({ x: 1 })" icon="arrow-right" />
         <Button @click="move({ y: 1 })" icon="arrow-down" />
       </div>
@@ -14,18 +14,13 @@
       <Button state-key="controlSteps" :value="10" />
       <Button state-key="controlSteps" :value="100" />
 
-      <Button
-        value="PEN"
-        class="mt"
-        :style="{ backgroundColor: penUp ? 'red' : null }"
-        @click="togglePen()"
-      />
+      <Button value="PEN" class="mt" :active="!penUp" @click="togglePen()" />
     </aside>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState } from "vuex";
 import Button from "@/components/Button.vue";
 
 export default {
@@ -39,12 +34,18 @@ export default {
   },
   methods: {
     move({ x = 0, y = 0 }) {
-      this.$socket.client.emit("moveBy", {
-        x: x * this.controlSteps,
-        y: y * this.controlSteps
-      });
+      if (x === 0 && y === 0) {
+        this.$socket.client.emit("home");
+      } else {
+        this.$socket.client.emit("moveBy", {
+          x: x * this.controlSteps,
+          y: y * this.controlSteps
+        });
+      }
     },
-    ...mapActions(["togglePen"])
+    togglePen() {
+      this.$socket.client.emit("togglePen");
+    }
   }
 };
 </script>

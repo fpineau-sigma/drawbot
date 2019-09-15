@@ -1,8 +1,34 @@
 const IS_PI = require("detect-rpi")();
 const Gpio = IS_PI ? require("pigpio").Gpio : null;
 
-class GpioWrapper {
+class PromiseQueue {
+  constructor() {
+    this._queue = [];
+  }
+  async addDelayedTask(delay, task) {
+    return new Promise(resolve => {
+      this._queue.push(() =>
+        new Promise(r => {
+          task();
+          setTimeout(r, delay);
+        }).then(resolve)
+      );
+      if (this._queue.length === 1) this._runTask();
+    });
+  }
+  async _runTask() {
+    if (this._queue.length !== 0) {
+      await this._queue[0]();
+      this._queue.shift();
+      this._runTask();
+    }
+  }
+}
+
+class GpioWrapper extends PromiseQueue {
   constructor({ pin, output = false, input = false }) {
+    super();
+    this.pin = pin;
     this.gpio =
       Gpio === null
         ? null
@@ -22,41 +48,62 @@ class GpioWrapper {
   }
 }
 
-class Servo extends GpioWrapper {
-  constructor(pin, { min = 544, max = 2400, duration = 200 } = {}) {
+class ToggleServo extends GpioWrapper {
+  constructor(
+    { pin, delay = 200, minValue = 544, maxValue = 2400 },
+    isOn = false,
+    demo = false
+  ) {
     super({ pin, output: true });
-    this.onValue = min;
-    this.offValue = min + Math.floor((max - min) * 0.35);
-    this.duration = duration;
-    this.isOn = false;
-  }
-  async write(on = false, duration = this.duration) {
-    if (this.isOn !== !!on) {
-      this.isOn = !this.isOn;
-      return new Promise(resolve => {
-        this.servoWrite(this.isOn ? this.onValue : this.offValue);
-        setTimeout(() => resolve(), duration);
-      });
+    this.onValue = minValue;
+    this.offValue = minValue + Math.floor((maxValue - minValue) * 0.35);
+    this.delay = delay;
+    this.value = -1;
+    this.set(isOn);
+
+    if (demo) {
+      this.set(!isOn);
+      this.set(isOn);
+      this.set(!isOn);
+      this.set(isOn);
+      this.set(!isOn);
+      this.set(isOn);
     }
   }
-}
-
-class Stepper {
-  constructor(dirPin, stepPin, { duration = 1 } = {}) {
-    this.dir = new GpioWrapper({ pin: dirPin, output: true });
-    this.step = new GpioWrapper({ pin: stepPin, output: true });
-    this.duration = duration;
+  get isOn() {
+    return this.value === this.onValue;
   }
-  async write(forward = false, duration = this.duration) {
-    return new Promise(resolve => {
-      this.dir.digitalWrite(forward ? 1 : 0);
-      this.step.digitalWrite(1);
-      setTimeout(() => {
-        this.step.digitalWrite(0);
-        resolve();
-      }, duration);
+  get isOff() {
+    return this.value === this.offValue;
+  }
+  async set(isOn = false) {
+    return this.write(isOn ? this.onValue : this.offValue);
+  }
+  async write(value, delay = this.delay) {
+    await this.addDelayedTask(delay, () => {
+      if (this.value !== value) {
+        this.value = value;
+        this.servoWrite(value);
+      }
     });
   }
 }
 
-module.exports = { Servo, Stepper };
+class Stepper extends PromiseQueue {
+  constructor({ dir, step, invert = false, delay = 1 }) {
+    super();
+    this.dir = new GpioWrapper({ pin: dir.pin, output: true });
+    this.step = new GpioWrapper({ pin: step.pin, output: true });
+    this.invert = invert;
+    this.delay = delay;
+  }
+  async set(forward, delay = this.delay) {
+    forward = this.invert ? !forward : !!forward;
+    await this.addDelayedTask(delay, () => {
+      this.dir.digitalWrite(forward ? 1 : 0);
+      this.step.digitalWrite(1);
+    }).then(() => this.step.digitalWrite(0));
+  }
+}
+
+module.exports = { ToggleServo, Stepper };
