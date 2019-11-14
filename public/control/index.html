@@ -363,15 +363,15 @@
                         name="starty">
                 </div>
             </form>
-            <a href="#" class="btn pause"><i class="fa fa-pause fa-1x"></i></a>
-            <a href="#" class="btn reboot"><i class="fa fa-refresh fa-1x"></i></a>
+            <!--<a href="#" class="btn pause"><i class="fa fa-pause fa-1x"></i></a>
+            <a href="#" class="btn reboot"><i class="fa fa-refresh fa-1x"></i></a>//-->
         </div>
         <div class="page" id="progress">
             <a href="#" class="btn close2"><i class="fa fa-close fa-1x"></i></a>
-            <canvas id="originCanvas" width="480" height="600">
+            <canvas id="originCanvas" width="600" height="800">
                         
             </canvas>
-            <canvas id="progressCanvas" width="480" height="600">
+            <canvas id="progressCanvas" width="600" height="800">
                 
             </canvas>
         </div>
@@ -609,20 +609,20 @@
             toggleSettings();
         });
 
-        var pauseButton = document.querySelector('.pause');
+        /*var pauseButton = document.querySelector('.pause');
         pauseButton.addEventListener('click', function (e) {
             data = 0;
             socket.emit('pause', data);
-        });
+        });*/
 
-        var rebootButton = document.querySelector('.reboot');
+        /*var rebootButton = document.querySelector('.reboot');
         rebootButton.addEventListener('click', function (e) {
             socket.emit('reboot')
             connectionIndicator.classList.remove('connected')
             connectionIndicator.classList.remove('disconnected')
             connectionIndicator.classList.add('rebooting')
             rebootButton.classList.add('fa-spin')
-        });
+        });*/
 
 
 
