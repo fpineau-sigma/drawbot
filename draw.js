@@ -38,6 +38,7 @@ var config = Config('config.json', () => {
 //  START
 var go = () => {
 	botController.updateStringLengths()
+	botController.setStates()
 	localServer.start()
 }
 

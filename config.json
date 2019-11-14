@@ -22,7 +22,10 @@
     "penServo": 26,
     "btnOne": 18,
     "btnTwo": 23,
-    "btnThree": 24
+    "btnThree": 24,
+    "leftDriver": 16,
+    "rightDriver": 12,
+    "microStepping": 20
   },
   "limits": {
     "x": 480,

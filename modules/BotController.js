@@ -53,6 +53,12 @@ var BotController = (cfg) => {
             new Gpio(config.pins.btnThree, gmIn)
         ] 
 
+        var logicPins = [
+            new Gpio(config.pins.leftDriver, gmOut),
+            new Gpio(config.pins.rightDriver, gmOut),
+            new Gpio(config.pins.microStepping, gmOut)
+        ]
+
         // set up servo GPIO pin
         var servo = new Gpio(config.pins.penServo, gmOut)
     } else {
@@ -61,9 +67,11 @@ var BotController = (cfg) => {
         var dirPins = [config.pins.leftDir, config.pins.rightDir]
         var stepPins = [config.pins.leftStep, config.pins.rightStep]
         var servo = config.pins.penServo
+        var logicPins = [config.pins.leftDriver, config.pins.rightDriver, config.pins.microStepping]
     }
 
-
+    
+    //stepPins[m].digitalWrite(1)
     /////////////////////////////////
     // CONTROLLER VARIABLES
 
@@ -108,6 +116,12 @@ var BotController = (cfg) => {
 
     /////////////////////////////////
     // HARDWARE METHODS
+
+    bc.setStates = () =>{
+        logicPins[1].digitalWrite(1); // activate Left Motor Driver
+        logicPins[2].digitalWrite(1); // activate Right Motor Driver
+        logicPins[3].digitalWrite(1); // set Microstepping to 1/16
+    }
 
     bc.updateStringLengths = () => {
         bc.startStringLengths = [
