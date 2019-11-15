@@ -118,9 +118,12 @@ var BotController = (cfg) => {
     // HARDWARE METHODS
 
     bc.setStates = () =>{
-        logicPins[1].digitalWrite(1); // activate Left Motor Driver
-        logicPins[2].digitalWrite(1); // activate Right Motor Driver
-        logicPins[3].digitalWrite(1); // set Microstepping to 1/16
+        logicPins[0].digitalWrite(1); // activate Left Motor Driver
+        logicPins[1].digitalWrite(1); // activate Right Motor Driver
+        logicPins[2].digitalWrite(1); // set Microstepping to 1/16
+        console.log("pin 1:"+logicPins[0]);
+        console.log("pin 2:"+logicPins[1]);
+        console.log("pin 3:"+logicPins[2]);
     }
 
     bc.updateStringLengths = () => {
