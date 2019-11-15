@@ -153,7 +153,7 @@ var BotController = (cfg) => {
         bc.penPos = dir
         // 0=down, 1=up
         // 544 to 2400
-        var servoMin = 544
+        var servoMin = 600
         var servoMax = 2400
         var servoD = servoMax - servoMin
         var servoUpPos = servoMin
