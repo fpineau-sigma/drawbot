@@ -118,12 +118,14 @@ var BotController = (cfg) => {
     // HARDWARE METHODS
 
     bc.setStates = () =>{
-        logicPins[0].digitalWrite(1); // activate Left Motor Driver
-        logicPins[1].digitalWrite(1); // activate Right Motor Driver
-        logicPins[2].digitalWrite(1); // set Microstepping to 1/16
-        console.log("pin 1:"+logicPins[0]);
-        console.log("pin 2:"+logicPins[1]);
-        console.log("pin 3:"+logicPins[2]);
+        if (isPi()) {
+            logicPins[0].digitalWrite(1); // activate Left Motor Driver
+            logicPins[1].digitalWrite(1); // activate Right Motor Driver
+            logicPins[2].digitalWrite(1); // set Microstepping to 1/16
+            console.log("pin 1:"+logicPins[0]);
+            console.log("pin 2:"+logicPins[1]);
+            console.log("pin 3:"+logicPins[2]);
+        }
     }
 
     bc.updateStringLengths = () => {
@@ -247,6 +249,29 @@ var BotController = (cfg) => {
             }
         }
         doStep()
+    }
+
+    bc.rotate = (motorIndex, dirIndex, delay, steps, callback) => {
+         console.log('bc.rotate',motorIndex, dirIndex, delay, steps)
+        bc.stepCounts[motorIndex] = Math.round(steps)
+        bc.steppeds[motorIndex] = 0
+        // var dir = (dirIndex==1) ? 0 : 1// reverses direction
+
+        // doStep, then wait for delay d
+        var doStep = function (d, m) {
+            bc.makeStep(m, dirIndex)// changed to dirIndex from dir
+            bc.steppeds[m]++
+            if (bc.steppeds[m] < bc.stepCounts[m]) {
+                setTimeout(function () {
+                    // console.log(m, bc.steppeds[m], "/", bc.stepCounts[m], d*bc.steppeds[m], "/", bc.stepCounts[m]*d)
+                    doStep(d, m)
+                }, d)
+            } else {
+                // done
+                if (callback != undefined) callback()
+            }
+        }
+        doStep(delay, motorIndex)
     }
 
 

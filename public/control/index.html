@@ -14,191 +14,154 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/radialIndicator.min.js"></script>
     <style>
-        body,
-        * {
-            border: 0;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+     body,*{
+            border:0;
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
             font-family: sans-serif;
         }
-
-        #control {
-            margin: 33vh 0 0 0;
-            position: relative;
+        #control{
+            margin:12vh 0 0 0;
+            position:relative;
         }
-
-        .level {
-            position: absolute;
-            border-radius: 100%;
-            overflow: hidden;
+        .level{
+            position:absolute;
+            border-radius:100%;
+            overflow:hidden;
         }
-
-        .horizontal {
-            width: 100vw;
-            height: 15vw;
-            padding-top: 8vw
+        
+        .one{
+            width:100vw;
+            height:100vw;
         }
-
-        .horizontal .item {
-            float: left;
-            margin-left: 1vh
+        .one .item{
+            background:gray;
+            width:50vw;
+            height:50vw;
         }
-
-        .vertical {
-            position: absolute;
-            width: 64vw;
-            height: 15vw;
-            margin-top: -22vw;
-            padding-left: 27vw;
+        .two{
+            width:75vw;
+            height:75vw;
+            top:12.5vw;
+            left:12.5vw;
+            
+            overflow:hidden;
         }
-
-        .vertical .item {
-            float: left;
-            margin-left: 1vh
+        .two .item{
+            background:darkgray;
+            width:37.5vw;
+            height:37.5vw;
         }
-
-        .top{
+        .three{
+            width:50vw;
+            height:50vw;
+            top:25vw;
+            left:25vw;
+            
+            overflow:hidden;
+        }
+        .three .item{
+            background:lightgray;
+            width:25vw;
+            height:25vw;
+        }
+        .circle{
+            border-radius:100%;
+            overflow:hidden;
+            display:flex;
+            flex-wrap:wrap;
             
         }
-
-        .bottom{
-            padding-top: 39vh;
-        }
-
-        .item {
-            display: block;
-            border: 1.5vw solid green;
-            color: white;
+        .item{
+            display:block;
+            border:1.5vw solid white;
+            padding:2vw 0 0 2vw;
+            color:white;
             font-weight: bold;
-            border-radius: 100%;
         }
-
-        .one {
-            width: 15vh;
-            height: 15vh;
+        .item:active{
+            background:black;
         }
-        .two {
-            margin-top: 2vh;
-            width: 10vh;
-            height: 10vh;
-        }
-        .three {
-            margin-top: 4vh;
-            width: 5vh;
-            height: 5vh;
-        }
-        .extended{
-            margin-left:37vh!important;
-        }
-
-        .item:active {
-            background: black;
-        }
-
-
+        .tl{ border-radius:100% 0 0 0; }
+        .tr{ border-radius:0 100% 0 0; }
+        .bl{ border-radius:0 0 0 100%; }
+        .br{ border-radius:0 0 100% 0; }
         /* separate circle buttons */
-        .btn {
-            display: block;
-            position: absolute;
-            border-radius: 100%;
-            border: 3px solid gray;
-            width: 18vw;
-            height: 18vw;
+        .btn{
+            display:block;
+            position:absolute;
+            border-radius:100%;
+            border:5px solid gray;
+            width:25vw;
+            height:25vw;
             text-align: center;
-            line-height: 17vw;
-            text-decoration: none;
-            color: gray;
-            background: white;
-            font-size: 6vw;
-            font-weight: bold;
+            line-height:25vw;
+            text-decoration:none;
+            color:gray;
+            background:white;
+            font-size:6vw;
+            font-weight:bold;
         }
-
-        .btn:active {
-            background: black;
-            color: white;
+        .btn:active{
+            background:black;
+            color:white;
         }
-
-        .btn i {
-            line-height: 17vw;
+        .btn i{
+             line-height:23vw; 
         }
-
         .close {
             border-color: white;
             top: 2vw;
             right: 2vw;
         }
-
         .close2 {
             border-color: white;
             top: 2vw;
             right: 2vw;
         }
-
-        .clearcanvas {
-            top: 56vw;
-            left: 2vw;
-            border-color: white;
+        .clearcanvas{
+            top:115vw;
+            left:2vw;
+            border-color:white;
         }
-
-        .pen {
-            top: 5vw;
-            left: 31.5vw;
-            border-color: white;
+        .pen{
+            top:37.5vw;
+            left:37.5vw;
+            border-color:white;
         }
-
-        .up {
-            border-color: red;
+        .home{
+            top:2vw;
+            left:2vw;
+            border-color:white;
         }
-        .down {
-            border-color: green;
+        .settings{
+            top:2vw;
+            right:2vw;
+            border-color:white;
         }
-
-        .home {
-            top: 2vw;
-            left: 2vw;
-            border-color: white;
-        }
-
-        .sethome {
-            top: 2vw;
-            left: 20vw;
-            border-color: white;
-            display:none;
-        }
-
-        .settings {
-            top: 2vw;
-            right: 2vw;
-            border-color: white;
-        }
-
-        .progress {
+        .progress{
             top: 2vw;
             right: 20vw;
             border-color: white;
         }
 
-        .pause {
-            margin: 0;
-            left: 17vw;
+        .pause{
+            margin:2vw 0 0 0;
+            left:17vw;
         }
-
-        .reboot {
-            margin: 0;
-            right: 17vw;
+        .reboot{
+            margin:2vw 0 0 0;
+            right:17vw;
         }
-
-        .dragover {
-            opacity: 0.5;
+        .dragover{
+            opacity:0.5;
         }
-
         #home {
             visibility: hidden;
             border-color: green;
             display:none;
         }
-
         #settings {
             visibility: hidden;
             border-color: red;
@@ -209,97 +172,83 @@
             border-color: blue;
             display:none;
         }
-
         .on {
             visibility: visible !important;
             display:block !important;
         }
-
-        #dxy {
-            font-size: 6vw;
-            font-weight: bold;
-            width: 66vw;
-            margin: 0 10.5vw;
-            padding-top: 17vw;
-            color: gray;
+        #dxy{
+            font-size:6vw;
+            font-weight:bold;
+            width:66vw;
+            margin:0 10.5vw;
+            padding-top:10vw;
+            color:gray;
         }
-
-        input {
-            font-size: 10vw;
-            font-weight: regular;
-            width: 46vw;
-            padding: 1vh 3vw;
-            text-align: center;
-            border-radius: 10vw;
-            color: gray;
+        input{
+            font-size:16vw;
+            font-weight:bold;
+            width:46vw;
+            padding:2vh 3vw;
+            text-align:center;
+            border-radius:10vw;
+            color:gray;
         }
-
-        input:focus {
-            background: black;
-            color: white;
+        input:focus{
+            background:black;
+            color:white;
         }
-
-        input:focus~label {
-            color: black;
+        input:focus ~ label{
+            color:black;
         }
-
-        label {
-            position: relative;
-            bottom: 3vw;
+        label{
+            position:relative;
+            bottom:3vw;
         }
-
-        label i {
-            width: 8vw;
-            padding: 2vw;
+        label i{
+            width:8vw;
+            padding:2vw;
             text-align: center;
         }
-
-        *:focus {
-            outline: none;
+        *:focus{
+            outline:none;
         }
-
-        #botid {
+        #botid{
             text-align: center;
-            position: absolute;
-            top: 2vw;
-            left: 0;
-            width: 100vw;
-            font-size: 10px;
+            position:absolute;
+            top:2vw;
+            left:0;
+            width:100vw;
+            font-size:10px;
             font-weight: normal;
-            color: gray;
+            color:gray;
         }
-
-        #connection {
-            color: lightgray;
-            display: block;
-            position: absolute;
-            width: 10vw;
-            left: 42vw;
-            top: 8vw;
+        #connection{
+            color:lightgray;
+            display:block;
+            position:absolute;
+            width:25vw;
+            left:37.5vw;
+            top:12vw;
             text-align: center;
         }
-
-        .disconnected {
-            color: red !important;
+        .disconnected{
+            color:red !important;
         }
-
-        .rebooting {
-            color: orange !important;
+        .rebooting{
+            color:orange !important;
         }
-
-        .connected {
-            color: green !important;
+        .connected{
+            color:green !important;
         }
-
-        #percentage {
-            display: flex;
+        #percentage{
+            display:flex;
             align-items: center;
             justify-content: center;
-            position: absolute;
-            width: 25vw;
-            height: 25vw;
-            top: 50vw;
-            right: 2vw;
+            position:absolute;
+            width:25vw;
+            height:25vw;
+            top:115vw;
+            right:2vw;
         }
     </style>
 </head>
@@ -310,39 +259,37 @@
         <div id="connection" class="fa fa-circle"></div>
         <div class="page on" id="home">
             <a href="#" class="btn home"><i class="fa  fa-home fa-1x"></i></a>
-            <a href="#" class="btn sethome"><i class="fa  fa-plus-circle fa-1x"></i></a>
+            <!--<a href="#" class="btn sethome"><i class="fa  fa-plus-circle fa-1x"></i></a>//-->
             <a href="#" class="btn settings"><i class="fa  fa-gear fa-1x"></i></a>
             <a href="#" class="btn progress"><i class="fa  fa-sticky-note fa-1x"></i></a>
             <a href="#" class="btn clearcanvas"><i class="fa  fa-minus-circle fa-1x"></i></a>
             <div id="percentage" class=""></div>
             <div id="control">
-               
-                <div class="horizontal">
-                    <div class="">
-                        <a data-d="h" data-x="-100" data-y="0" class="item one"></a>
-                        <a data-d="h" data-x="-10" data-y="0" class="item two"></a>
-                        <a data-d="h" data-x="-1" data-y="0" class="item three "></a>
-                        <a data-d="h" data-x="1" data-y="0" class="item three extended"></a>
-                        <a data-d="h" data-x="10" data-y="0" class="item two"></a>
-                        <a data-d="h" data-x="100" data-y="0" class="item one"></a>
+                <div class="level one">
+                    <div class="circle">
+                        <a data-m="0" data-dir="1" data-steps="1000" class="item tl"></a>
+                        <a data-m="1" data-dir="0" data-steps="1000" class="item tr"></a>
+                        <a data-m="1" data-dir="1" data-steps="1000" class="item bl">1000</a>
+                        <a data-m="0" data-dir="0" data-steps="1000" class="item br"></a>
                     </div>
                 </div>
-
-                <div class="vertical">
-                    <div class="top">
-                        <a data-d="v" data-y="-100" data-x="0" class="item one"></a>
-                        <a data-d="v" data-y="-10" data-x="0" class="item two"></a>
-                        <a data-d="v" data-y="-1" data-x="0" class="item three "></a>
-                    </div>
-                    <div class="bottom">
-                        <a data-d="v" data-y="1" data-x="0" class="item three"></a>
-                        <a data-d="v" data-y="10" data-x="0" class="item two"></a>
-                        <a data-d="v" data-y="100" data-x="0" class="item one"></a>
+                <div class="level two">
+                    <div class="circle">
+                        <a data-m="0" data-dir="1" data-steps="100" class="item tl"></a>
+                        <a data-m="1" data-dir="0" data-steps="100" class="item tr"></a>
+                        <a data-m="1" data-dir="1" data-steps="100" class="item bl">100</a>
+                        <a data-m="0" data-dir="0" data-steps="100" class="item br"></a>
                     </div>
                 </div>
-                
-
-                <a href="#" id="penButton" class="btn pen">PEN</a>
+                <div class="level three">
+                    <div class="circle">
+                        <a data-m="0" data-dir="1" data-steps="10" class="item tl"></a>
+                        <a data-m="1" data-dir="0" data-steps="10" class="item tr"></a>
+                        <a data-m="1" data-dir="1" data-steps="10" class="item bl">10</a>
+                        <a data-m="0" data-dir="0" data-steps="10" class="item br"></a>
+                    </div>
+                </div>
+                <a href="#" class="btn pen">PEN</a>
             </div>
         </div>
         <div class="page" id="settings">
@@ -396,7 +343,7 @@
         var penz = 0;
         let pads = document.querySelectorAll('.item');
         for (var i = 0; i < pads.length; i++) {
-            //console.log(pads[i])
+            console.log(pads[i])
             let pad = pads[i];
             pad.addEventListener('click', handleTouch);
         }
@@ -406,7 +353,7 @@
             var data = this.dataset
             console.log(data)
             socket.emit('r', data)
-            //console.log(data);
+            console.log(data);
         }
 
         var pen = document.querySelector('.pen');
