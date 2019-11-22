@@ -33,6 +33,7 @@ var BotController = (cfg) => {
     bc.penPause = config.penPauseDelay    // || 200 // pause for pen up/down movement (in ms)
     bc.servoMin = config.servo.Min;
     bc.servoMax = config.servo.Max;
+    bc.swapServo = config.servo.swap
 
     if (isPi()) {
         /////////////////////////////////
@@ -144,8 +145,15 @@ var BotController = (cfg) => {
         bc.penPos = dir
         // 0=down, 1=up
         var servoD = bc.servoMax - bc.servoMin
-        var servoUpPos = bc.servoMin
-        var servoDnPos = bc.servoMin + Math.floor(servoD * 0.35)
+        if (swapServo){
+            var servoUpPos = bc.servoMax
+            var servoDnPos = bc.servoMax - Math.floor(servoD * 0.35)
+        }else{
+            var servoUpPos = bc.servoMin
+            var servoDnPos = bc.servoMin + Math.floor(servoD * 0.35)
+        }
+
+
         if (dir == 1) {
             // lift pen up
             console.log('Pen: up ' + servoUpPos)
