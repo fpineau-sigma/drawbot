@@ -57,7 +57,6 @@ var BotController = (cfg) => {
         var logicPins = [
             new Gpio(config.pins.leftDriver, gmOut),
             new Gpio(config.pins.rightDriver, gmOut),
-            new Gpio(config.pins.microStepping, gmOut)
         ]
 
         // set up servo GPIO pin
