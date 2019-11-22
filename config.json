@@ -14,7 +14,8 @@
   ],
   "servo": {
     "Min":600,
-    "Max":2400
+    "Max":2400,
+    "swap":false
   },
   "penPauseDelay": 100,
   "remoteURL": "",
