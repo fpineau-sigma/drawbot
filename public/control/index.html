@@ -351,6 +351,7 @@
         function handleTouch(e) {
             e.preventDefault()
             var data = this.dataset
+	    data.d = 2
             console.log(data)
             socket.emit('r', data)
             console.log(data);
