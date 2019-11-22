@@ -1,7 +1,7 @@
 var isPi = require('detect-rpi');
 if (isPi()) {
     var Gpio = require('pigpio').Gpio
-    //var limitswitches = require('rpi-gpio-buttons')([36, 38]); //initialize limit switches on pins 36 (gpio20) and 38 (gpio38)
+
 } else {
 
 }
@@ -31,7 +31,8 @@ var BotController = (cfg) => {
     bc.startPos = config.startPos         // || { x: 100, y: 100 }
     bc.stepsPerMM = config.stepsPerMM       // || [5000/500, 5000/500] // steps / mm
     bc.penPause = config.penPauseDelay    // || 200 // pause for pen up/down movement (in ms)
-
+    bc.servoMin = config.servo.Min;
+    bc.servoMax = config.servo.Max;
 
     if (isPi()) {
         /////////////////////////////////
@@ -67,7 +68,7 @@ var BotController = (cfg) => {
         var dirPins = [config.pins.leftDir, config.pins.rightDir]
         var stepPins = [config.pins.leftStep, config.pins.rightStep]
         var servo = config.pins.penServo
-        var logicPins = [config.pins.leftDriver, config.pins.rightDriver, config.pins.microStepping]
+        var logicPins = [config.pins.leftDriver, config.pins.rightDriver]
     }
 
     
@@ -96,19 +97,7 @@ var BotController = (cfg) => {
     // LIMIT SWITCHES FOR AUTOMATIC HOMING
 
     if (isPi()) {
-        /*limitswitches.on('clicked', function (pin) {
-            switch (pin) {
-                // left limit switch was triggered
-                case 36:
-                    //endLeftTriggered();
-                    break
 
-                // right limit switch was triggered
-                case 38:
-                    //endRightTriggered();
-                    break;
-            }
-        });*/
     } else {
 
     }
@@ -121,10 +110,8 @@ var BotController = (cfg) => {
         if (isPi()) {
             logicPins[0].digitalWrite(1); // activate Left Motor Driver
             logicPins[1].digitalWrite(1); // activate Right Motor Driver
-            logicPins[2].digitalWrite(1); // set Microstepping to 1/16
             console.log("pin 1:"+logicPins[0]);
             console.log("pin 2:"+logicPins[1]);
-            console.log("pin 3:"+logicPins[2]);
         }
     }
 
@@ -157,23 +144,20 @@ var BotController = (cfg) => {
     bc.pen = (dir) => {
         bc.penPos = dir
         // 0=down, 1=up
-        // 544 to 2400
-        var servoMin = 600
-        var servoMax = 2400
-        var servoD = servoMax - servoMin
-        var servoUpPos = servoMin
-        var servoDnPos = servoMin + Math.floor(servoD * 0.35)
+        var servoD = bc.servoMax - bc.servoMin
+        var servoUpPos = bc.servoMin
+        var servoDnPos = bc.servoMin + Math.floor(servoD * 0.35)
         if (dir == 1) {
             // lift pen up
-            console.log('Pen: up')
+            console.log('Pen: up ' + servoUpPos)
             if (isPi()) { servo.servoWrite(servoUpPos) }
         } else if( dir == 0) {
             // put pen down
-            console.log('Pen: down')
+            console.log('Pen: down ' + servoDnPos)
             if (isPi()) { servo.servoWrite(servoDnPos) }
         } else {
 			// lift pen up
-            console.log('Pen: up')
+            console.log('Pen: up ' + servoUpPos)
             if (isPi()) { servo.servoWrite(servoUpPos) }
         }
         if (bc.localio){

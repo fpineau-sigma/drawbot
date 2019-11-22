@@ -12,6 +12,10 @@
     10,
     10
   ],
+  "servo": {
+    "Min":600,
+    "Max":2400
+  },
   "penPauseDelay": 100,
   "remoteURL": "",
   "pins": {
@@ -24,8 +28,7 @@
     "btnTwo": 23,
     "btnThree": 24,
     "leftDriver": 16,
-    "rightDriver": 12,
-    "microStepping": 20
+    "rightDriver": 12
   },
   "limits": {
     "x": 480,
