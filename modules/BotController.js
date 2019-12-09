@@ -274,9 +274,7 @@ var BotController = (cfg) => {
 
         var tox = Number(bc.pos.x) + Number(x)
         var toy = Number(bc.pos.y) + Number(y)
-
-        
-
+     
         bc.moveTo(Number(tox), Number(toy), callback, 1)
     }
 
@@ -287,12 +285,22 @@ var BotController = (cfg) => {
             console.log("-------> homing <-------")
         }
         // convert x,y to l1,l2 (ideal, precise string lengths)
+        // L1 = Math.sqrt( Math.pow(y,2) + Math.pow(x+d/2, 2));
+        // L2 = Math.sqrt( Math.pow(y,2) + Math.pow(x-d/2, 2));
+
+        // Inverse kinematics 
+        // L1 = Math.sqrt(X² + Y²)
+        // L2 = Math.sqrt((d - X)² + Y²)
+
         var X = x + bc.startPos.x
         var Y = y + bc.startPos.y
+
         var X2 = X * X
         var Y2 = Y * Y
+
         var DsubX = bc._D - X
         var DsubX2 = DsubX * DsubX
+                
         L1 = Math.sqrt(X2 + Y2)
         L2 = Math.sqrt(DsubX2 + Y2)
 
