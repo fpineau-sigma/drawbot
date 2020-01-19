@@ -72,6 +72,7 @@ var LocalServer = (cfg, controller) => {
               d: c._D,
               x: c.startPos.x,
               y: c.startPos.y,
+              s: c.drawingScale,
               limx: c.limits.x,
               limy: c.limits.y,
               strings: c.startStringLengths
