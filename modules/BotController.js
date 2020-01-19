@@ -391,13 +391,12 @@ var BotController = (cfg) => {
     bc.drawPath = (pathString) => {
         bc.drawingPath = true
         console.log('generating path...')
-        var drawingScale = drawingScale/100;
-        var transformed = svgpath(pathString)
-            .scale(drawingScale)
-            .round(2)
-            .toString();
+        var drawingScale = config.drawingScale/100;
+        console.log("drawingScale: "+drawingScale);
+        var transformed = svgpath(pathString).scale(drawingScale).round(2).toString();
 
         var commands = parseSVG(transformed);
+        //var commands = parseSVG(pathString);
 		makeAbsolute(commands);
 
         var cmdCount = commands.length
