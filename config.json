@@ -3,18 +3,10 @@
   "swapDirections": false,
   "localPort": 80,
   "baseDelay": 1,
-<<<<<<< HEAD
   "d": 973,
-  "drawingScale": 80,
   "startPos": {
     "x": 200,
     "y": 325
-=======
-  "d": 957,
-  "startPos": {
-    "x": 175,
-    "y": 360
->>>>>>> a8723d82c4e5104562324cd17a59cbf8e53acdbb
   },
   "stepsPerMM": [
     10,
@@ -44,3 +36,4 @@
     "y": 600
   }
 }
+
