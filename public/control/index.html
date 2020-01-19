@@ -367,7 +367,7 @@
     </div>
 
 
-
+<!-- ---------------------------------------------------------------------------------------------------------- -->
 
 
     <script>
@@ -477,17 +477,16 @@
 
             var drawingScale = scalefield.value / 100;
             console.log("scale: "+drawingScale);
-            //var drawingScale = 1;
-            //console.log("scale1: " + drawingScale);
 
-            var x = data.x * drawingScale;
-            var y = data.y * drawingScale;
-            var tox0 = data.x0 * drawingScale;
-            var toy0 = data.y0 * drawingScale;
-            var tox1 = data.x1 * drawingScale;
-            var toy1 = data.y1 * drawingScale;
-            var tox2 = data.x2 * drawingScale;
-            var toy2 = data.y2 * drawingScale;
+            var x = data.x;
+            var y = data.y;
+            var tox0 = data.x0;
+            var toy0 = data.y0;
+            var tox1 = data.x1;
+            var toy1 = data.y1;
+            var tox2 = data.x2;
+            var toy2 = data.y2;
+            
             var pen = data.pen
             var progcanvas = document.getElementById("originCanvas");
             var progctx = progcanvas.getContext("2d");

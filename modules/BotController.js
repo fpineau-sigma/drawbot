@@ -10,7 +10,8 @@ var cBezier = require('adaptive-bezier-curve')
 var qBezier = require('adaptive-quadratic-curve')
 
 const {parseSVG, makeAbsolute} = require('svg-path-parser');
-var arcToBezier = require('./arcToBezier')
+var arcToBezier = require('./arcToBezier');
+var svgpath = require('svgpath');
 
 var currentX = 0;
 var currentY = 0;
@@ -287,11 +288,6 @@ var BotController = (cfg) => {
     }
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        //drawingScale = config.drawingScale/100;
-
-        //x = x * drawingScale;
-        //y = y * drawingScale;
-
         console.log('---------- bc.moveTo', x, y, drawingScale, ' ----------')
 
         if (x == 0 && y == 0) {
@@ -404,13 +400,15 @@ var BotController = (cfg) => {
 
     bc.drawPath = (pathString) => {
         bc.drawingPath = true
-        console.log('generating path...')
-        const commands = parseSVG(pathString);
-		makeAbsolute(commands);
-
+        console.log('generating path...');
+        var pathScale = config.drawingScale/100;
+        var scaledpath = svgpath(pathString).scale(pathScale).round(1).toString();
+        var commands = parseSVG(scaledpath);
+        makeAbsolute(commands);
+        
         var cmdCount = commands.length
-        console.log(cmdCount)
-		//console.log(commands)
+        //console.log(cmdCount)
+		console.log(commands);
 		
         console.log('drawing path...')
 		var cmdIndex = 0
@@ -422,15 +420,22 @@ var BotController = (cfg) => {
         }
 		
         function doCommand() {
+
+
             if (cmdIndex < cmdCount) {
                 var cmd = commands[cmdIndex]
                 var cmdCode = cmd.code
-                console.log("Command: "+cmd.code);
+
+                console.log("Command-index: " + cmdIndex);
+
+                console.log("Command-count: " + cmdCount);
                 drawingScale = config.drawingScale / 100;
-
-                var tox = checkValue(bc.pos.x) * drawingScale;
-                var toy = checkValue(bc.pos.y) * drawingScale;
-
+                console.log("Drawing-scale: " + drawingScale);
+                //var myx = checkValue(cmd.x) * drawingScale;
+                //var myy = checkValue(cmd.y) * drawingScale;
+                //cmd.x = checkValue(cmd.x) * drawingScale;
+                //cmd.y = checkValue(cmd.y) * drawingScale;
+                //console.log("------ myXY: " + myx + "|" + myy);
 
                 cmdIndex++
                 var percentage = Math.round((cmdIndex / cmdCount) * 100)
