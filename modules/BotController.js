@@ -287,7 +287,7 @@ var BotController = (cfg) => {
     }
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        drawingScale = config.drawingScale/100;
+        //drawingScale = config.drawingScale/100;
 
         //x = x * drawingScale;
         //y = y * drawingScale;
@@ -425,9 +425,12 @@ var BotController = (cfg) => {
             if (cmdIndex < cmdCount) {
                 var cmd = commands[cmdIndex]
                 var cmdCode = cmd.code
+                console.log("Command: "+cmd.code);
+                drawingScale = config.drawingScale / 100;
 
-                var tox = checkValue(bc.pos.x)
-                var toy = checkValue(bc.pos.y)
+                var tox = checkValue(bc.pos.x) * drawingScale;
+                var toy = checkValue(bc.pos.y) * drawingScale;
+
 
                 cmdIndex++
                 var percentage = Math.round((cmdIndex / cmdCount) * 100)
