@@ -278,10 +278,10 @@ var BotController = (cfg) => {
     }
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        scale = config.scale;
-        x = x * scale;
-        y = y * scale;
-        console.log('---------- bc.moveTo', x, y, scale, ' ----------')
+        drawingScale = config.drawingScale;
+        x = x * drawingScale;
+        y = y * drawingScale;
+        console.log('---------- bc.moveTo', x, y, drawingScale, ' ----------')
 
         if (x == 0 && y == 0) {
             console.log("-------> homing <-------")
@@ -415,8 +415,6 @@ var BotController = (cfg) => {
                 var cmd = commands[cmdIndex]
                 var cmdCode = cmd.code
 
-                //var tox = checkValue(bc.pos.x * config.scale)
-                //var toy = checkValue(bc.pos.y * config.scale)
                 var tox = checkValue(bc.pos.x)
                 var toy = checkValue(bc.pos.y)
 

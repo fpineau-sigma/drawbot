@@ -3,11 +3,11 @@
   "swapDirections": false,
   "localPort": 80,
   "baseDelay": 1,
-  "d": 925,
-  "scale":0.5,
+  "d": 973,
+  "drawingScale":0.8,
   "startPos": {
-    "x": 185,
-    "y": 165
+    "x": 200,
+    "y": 325
   },
   "stepsPerMM": [
     10,
