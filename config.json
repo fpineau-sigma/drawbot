@@ -4,6 +4,7 @@
   "localPort": 80,
   "baseDelay": 1,
   "d": 925,
+  "scale":0.5,
   "startPos": {
     "x": 185,
     "y": 165

@@ -271,24 +271,25 @@ var BotController = (cfg) => {
 
     bc.moveRelative = (x, y, callback, penDir = 1) => {
         console.log('---------- bc.moveRelative', x, y, ' ----------')
-
         var tox = Number(bc.pos.x) + Number(x)
         var toy = Number(bc.pos.y) + Number(y)
-
-        
-
         bc.moveTo(Number(tox), Number(toy), callback, 1)
     }
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        console.log('---------- bc.moveTo', x, y, ' ----------')
+        scale = config.scale;
+        x = x * scale;
+        y = y * scale;
+        console.log('---------- bc.moveTo', x, y, scale, ' ----------')
 
         if (x == 0 && y == 0) {
             console.log("-------> homing <-------")
         }
         // convert x,y to l1,l2 (ideal, precise string lengths)
-        var X = x + bc.startPos.x
-        var Y = y + bc.startPos.y
+
+        var X = x + bc.startPos.x;
+        var Y = y + bc.startPos.y;
+
         var X2 = X * X
         var Y2 = Y * Y
         var DsubX = bc._D - X
@@ -405,6 +406,8 @@ var BotController = (cfg) => {
                 var cmd = commands[cmdIndex]
                 var cmdCode = cmd.code
 
+                //var tox = checkValue(bc.pos.x * config.scale)
+                //var toy = checkValue(bc.pos.y * config.scale)
                 var tox = checkValue(bc.pos.x)
                 var toy = checkValue(bc.pos.y)
 
