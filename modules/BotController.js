@@ -8,7 +8,7 @@ if (isPi()) {
 
 var cBezier = require('adaptive-bezier-curve')
 var qBezier = require('adaptive-quadratic-curve')
-
+var svgpath = require('svgpath');
 const {parseSVG, makeAbsolute} = require('svg-path-parser');
 var arcToBezier = require('./arcToBezier')
 
@@ -384,7 +384,12 @@ var BotController = (cfg) => {
     bc.drawPath = (pathString) => {
         bc.drawingPath = true
         console.log('generating path...')
-        const commands = parseSVG(pathString);
+        var transformed = svgpath(pathString)
+            .scale(1)
+            .round(2)
+            .toString();
+
+        var commands = parseSVG(transformed);
 		makeAbsolute(commands);
 
         var cmdCount = commands.length
