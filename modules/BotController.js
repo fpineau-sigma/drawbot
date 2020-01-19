@@ -1,7 +1,7 @@
 var isPi = require('detect-rpi');
 if (isPi()) {
     var Gpio = require('pigpio').Gpio
-    //var limitswitches = require('rpi-gpio-buttons')([36, 38]); //initialize limit switches on pins 36 (gpio20) and 38 (gpio38)
+
 } else {
 
 }
@@ -31,7 +31,9 @@ var BotController = (cfg) => {
     bc.startPos = config.startPos         // || { x: 100, y: 100 }
     bc.stepsPerMM = config.stepsPerMM       // || [5000/500, 5000/500] // steps / mm
     bc.penPause = config.penPauseDelay    // || 200 // pause for pen up/down movement (in ms)
-
+    bc.servoMin = config.servo.Min;
+    bc.servoMax = config.servo.Max;
+    bc.swapServo = config.servo.swap
 
     if (isPi()) {
         /////////////////////////////////
@@ -53,6 +55,11 @@ var BotController = (cfg) => {
             new Gpio(config.pins.btnThree, gmIn)
         ] 
 
+        var logicPins = [
+            new Gpio(config.pins.leftDriver, gmOut),
+            new Gpio(config.pins.rightDriver, gmOut),
+        ]
+
         // set up servo GPIO pin
         var servo = new Gpio(config.pins.penServo, gmOut)
     } else {
@@ -61,9 +68,11 @@ var BotController = (cfg) => {
         var dirPins = [config.pins.leftDir, config.pins.rightDir]
         var stepPins = [config.pins.leftStep, config.pins.rightStep]
         var servo = config.pins.penServo
+        var logicPins = [config.pins.leftDriver, config.pins.rightDriver]
     }
 
-
+    
+    //stepPins[m].digitalWrite(1)
     /////////////////////////////////
     // CONTROLLER VARIABLES
 
@@ -88,19 +97,7 @@ var BotController = (cfg) => {
     // LIMIT SWITCHES FOR AUTOMATIC HOMING
 
     if (isPi()) {
-        /*limitswitches.on('clicked', function (pin) {
-            switch (pin) {
-                // left limit switch was triggered
-                case 36:
-                    //endLeftTriggered();
-                    break
 
-                // right limit switch was triggered
-                case 38:
-                    //endRightTriggered();
-                    break;
-            }
-        });*/
     } else {
 
     }
@@ -108,6 +105,15 @@ var BotController = (cfg) => {
 
     /////////////////////////////////
     // HARDWARE METHODS
+
+    bc.setStates = () =>{
+        if (isPi()) {
+            logicPins[0].digitalWrite(1); // activate Left Motor Driver
+            logicPins[1].digitalWrite(1); // activate Right Motor Driver
+            console.log("pin 1:"+logicPins[0]);
+            console.log("pin 2:"+logicPins[1]);
+        }
+    }
 
     bc.updateStringLengths = () => {
         bc.startStringLengths = [
@@ -138,23 +144,27 @@ var BotController = (cfg) => {
     bc.pen = (dir) => {
         bc.penPos = dir
         // 0=down, 1=up
-        // 544 to 2400
-        var servoMin = 544
-        var servoMax = 2400
-        var servoD = servoMax - servoMin
-        var servoUpPos = servoMin
-        var servoDnPos = servoMin + Math.floor(servoD * 0.35)
+        var servoD = bc.servoMax - bc.servoMin
+        if (bc.swapServo){
+            var servoUpPos = bc.servoMax
+            var servoDnPos = bc.servoMax - Math.floor(servoD * 0.35)
+        }else{
+            var servoUpPos = bc.servoMin
+            var servoDnPos = bc.servoMin + Math.floor(servoD * 0.35)
+        }
+
+
         if (dir == 1) {
             // lift pen up
-            console.log('Pen: up')
+            console.log('Pen: up ' + servoUpPos)
             if (isPi()) { servo.servoWrite(servoUpPos) }
         } else if( dir == 0) {
             // put pen down
-            console.log('Pen: down')
+            console.log('Pen: down ' + servoDnPos)
             if (isPi()) { servo.servoWrite(servoDnPos) }
         } else {
 			// lift pen up
-            console.log('Pen: up')
+            console.log('Pen: up ' + servoUpPos)
             if (isPi()) { servo.servoWrite(servoUpPos) }
         }
         if (bc.localio){
@@ -232,34 +242,67 @@ var BotController = (cfg) => {
         doStep()
     }
 
+    bc.rotate = (motorIndex, dirIndex, delay, steps, callback) => {
+         console.log('bc.rotate',motorIndex, dirIndex, delay, steps)
+        bc.stepCounts[motorIndex] = Math.round(steps)
+        bc.steppeds[motorIndex] = 0
+        // var dir = (dirIndex==1) ? 0 : 1// reverses direction
+
+        // doStep, then wait for delay d
+        var doStep = function (d, m) {
+            bc.makeStep(m, dirIndex)// changed to dirIndex from dir
+            bc.steppeds[m]++
+            if (bc.steppeds[m] < bc.stepCounts[m]) {
+                setTimeout(function () {
+                    // console.log(m, bc.steppeds[m], "/", bc.stepCounts[m], d*bc.steppeds[m], "/", bc.stepCounts[m]*d)
+                    doStep(d, m)
+                }, d)
+            } else {
+                // done
+                if (callback != undefined) callback()
+            }
+        }
+        doStep(delay, motorIndex)
+    }
+
 
     /////////////////////////////////
     // DRAWING METHODS
 
     bc.moveRelative = (x, y, callback, penDir = 1) => {
         console.log('---------- bc.moveRelative', x, y, ' ----------')
-
         var tox = Number(bc.pos.x) + Number(x)
         var toy = Number(bc.pos.y) + Number(y)
-
-        
-
+     
         bc.moveTo(Number(tox), Number(toy), callback, 1)
     }
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        console.log('---------- bc.moveTo', x, y, ' ----------')
+        scale = config.scale;
+        x = x * scale;
+        y = y * scale;
+        console.log('---------- bc.moveTo', x, y, scale, ' ----------')
 
         if (x == 0 && y == 0) {
             console.log("-------> homing <-------")
         }
         // convert x,y to l1,l2 (ideal, precise string lengths)
+        // L1 = Math.sqrt( Math.pow(y,2) + Math.pow(x+d/2, 2));
+        // L2 = Math.sqrt( Math.pow(y,2) + Math.pow(x-d/2, 2));
+
+        // Inverse kinematics 
+        // L1 = Math.sqrt(X² + Y²)
+        // L2 = Math.sqrt((d - X)² + Y²)
+
         var X = x + bc.startPos.x
         var Y = y + bc.startPos.y
+
         var X2 = X * X
         var Y2 = Y * Y
+
         var DsubX = bc._D - X
         var DsubX2 = DsubX * DsubX
+                
         L1 = Math.sqrt(X2 + Y2)
         L2 = Math.sqrt(DsubX2 + Y2)
 
@@ -372,6 +415,8 @@ var BotController = (cfg) => {
                 var cmd = commands[cmdIndex]
                 var cmdCode = cmd.code
 
+                //var tox = checkValue(bc.pos.x * config.scale)
+                //var toy = checkValue(bc.pos.y * config.scale)
                 var tox = checkValue(bc.pos.x)
                 var toy = checkValue(bc.pos.y)
 
