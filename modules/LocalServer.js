@@ -56,6 +56,10 @@ var LocalServer = (cfg, controller) => {
         socket.on('setStartPos',function(data){
             c.setStartPos(data)
         })
+        socket.on('drawingScale',function(data){
+            c.setDrawingScale(data.drawingScale);
+            console.log("setscale:" + data.drawingScale)
+        })
         socket.on('setD',function(data){
             c.setD(Number(data.d))
         })

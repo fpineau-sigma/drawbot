@@ -28,6 +28,7 @@ var BotController = (cfg) => {
     bc.limits = config.limits
     bc.baseDelay = config.baseDelay        // || 2
     bc._D = config.d                // || 1000// default distance between string starts
+    bc.drawingScale = config.drawingScale
     bc.startPos = config.startPos         // || { x: 100, y: 100 }
     bc.stepsPerMM = config.stepsPerMM       // || [5000/500, 5000/500] // steps / mm
     bc.penPause = config.penPauseDelay    // || 200 // pause for pen up/down movement (in ms)
@@ -139,6 +140,12 @@ var BotController = (cfg) => {
         cfg.data.d = bc._D = Number(data)// set value and store in config
         cfg.save()// save to local config.json file
         bc.updateStringLengths()
+    }
+
+    bc.setDrawingScale = (data) => {
+        cfg.data.drawingScale = bc.drawingScale = Number(data)// set value and store in config
+        cfg.save()// save to local config.json file
+        //bc.updateStringLengths()
     }
 
     bc.pen = (dir) => {
@@ -384,8 +391,9 @@ var BotController = (cfg) => {
     bc.drawPath = (pathString) => {
         bc.drawingPath = true
         console.log('generating path...')
+        var drawingScale = drawingScale/100;
         var transformed = svgpath(pathString)
-            .scale(1)
+            .scale(drawingScale)
             .round(2)
             .toString();
 
