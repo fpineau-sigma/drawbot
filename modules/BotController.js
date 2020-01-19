@@ -289,8 +289,8 @@ var BotController = (cfg) => {
     bc.moveTo = (x, y, callback, penDir = 1) => {
         drawingScale = config.drawingScale/100;
 
-        x = x
-        y = y 
+        x = x * drawingScale;
+        y = y * drawingScale;
 
         console.log('---------- bc.moveTo', x, y, drawingScale, ' ----------')
 
@@ -305,8 +305,8 @@ var BotController = (cfg) => {
         // L1 = Math.sqrt(X² + Y²)
         // L2 = Math.sqrt((d - X)² + Y²)
 
-        var X = x + bc.startPos.x * drawingScale;
-        var Y = y + bc.startPos.y * drawingScale;
+        var X = x + bc.startPos.x ;
+        var Y = y + bc.startPos.y ;
 
         var X2 = X * X
         var Y2 = Y * Y
