@@ -28,6 +28,8 @@ var BotController = (cfg) => {
     bc.limits = config.limits
     bc.baseDelay = config.baseDelay        // || 2
     bc._D = config.d                // || 1000// default distance between string starts
+    bc.drawingScale = config.drawingScale
+    console.log(bc.drawingScale);   
     bc.startPos = config.startPos         // || { x: 100, y: 100 }
     bc.stepsPerMM = config.stepsPerMM       // || [5000/500, 5000/500] // steps / mm
     bc.penPause = config.penPauseDelay    // || 200 // pause for pen up/down movement (in ms)
@@ -135,6 +137,13 @@ var BotController = (cfg) => {
         cfg.save()// save to local config.json file
         bc.updateStringLengths()
     }
+    bc.setScale = (data) => {
+        console.log("bc.setscale:"+data);
+        cfg.data.drawingScale = bc.drawingScale = Number(data)// set value and store in config
+        cfg.save()// save to local config.json file
+        bc.updateStringLengths()
+    }
+
     bc.setD = (data) => {
         cfg.data.d = bc._D = Number(data)// set value and store in config
         cfg.save()// save to local config.json file
@@ -278,7 +287,8 @@ var BotController = (cfg) => {
     }
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        drawingScale = config.drawingScale;
+        drawingScale = config.drawingScale/100;
+
         x = x * drawingScale;
         y = y * drawingScale;
         console.log('---------- bc.moveTo', x, y, drawingScale, ' ----------')

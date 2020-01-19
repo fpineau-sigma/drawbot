@@ -347,9 +347,13 @@
                     <input type="number" value="0" min="0" inputmode="numeric" pattern="[0-9]*" id="starty"
                         name="starty">
                 </div>
+                <div>
+                    <label for="drawingScale"><i class="fa fa-long-arrow-right"></i> S:</label>
+                    <input type="number" value="0" min="0" inputmode="numeric" pattern="[0-9]*" id="drawingScale" name="drawingScale">
+                </div>
             </form>
-            <!--<a href="#" class="btn pause"><i class="fa fa-pause fa-1x"></i></a>
-            <a href="#" class="btn reboot"><i class="fa fa-refresh fa-1x"></i></a>//-->
+            <a href="#" class="btn pause"><i class="fa fa-pause fa-1x"></i></a>
+            <!--<a href="#" class="btn reboot"><i class="fa fa-refresh fa-1x"></i></a>//-->
         </div>
         <div class="page" id="progress">
             <a href="#" class="btn close2"><i class="fa fa-close fa-1x"></i></a>
@@ -470,14 +474,20 @@
         socket.on('progressDraw', function (data) {
             console.log(data);
             var cmdCode = data.cmd
-            var x = data.x
-            var y = data.y
-            var tox0 = data.x0
-            var toy0 = data.y0
-            var tox1 = data.x1
-            var toy1 = data.y1
-            var tox2 = data.x2
-            var toy2 = data.y2
+
+            var drawingScale = scalefield.value / 100;
+            console.log("scale: "+drawingScale);
+            //var drawingScale = 1;
+            //console.log("scale1: " + drawingScale);
+
+            var x = data.x * drawingScale;
+            var y = data.y * drawingScale;
+            var tox0 = data.x0 * drawingScale;
+            var toy0 = data.y0 * drawingScale;
+            var tox1 = data.x1 * drawingScale;
+            var toy1 = data.y1 * drawingScale;
+            var tox2 = data.x2 * drawingScale;
+            var toy2 = data.y2 * drawingScale;
             var pen = data.pen
             var progcanvas = document.getElementById("originCanvas");
             var progctx = progcanvas.getContext("2d");
@@ -537,6 +547,7 @@
         var dfield = document.querySelector('input[name="d"]');
         var xfield = document.querySelector('input[name="startx"]');
         var yfield = document.querySelector('input[name="starty"]');
+        var scalefield = document.querySelector('input[name="drawingScale"]');
 
         dfield.onchange = function (e) {
             if (dfield.value == "") dfield.value = 0
@@ -546,6 +557,13 @@
             socket.emit('setD', data)
         }
 
+        scalefield.onchange = function (e) {
+            if (scalefield.value == "") scalefield.value = 100
+            var data = {
+                s: Number(scalefield.value),
+            }
+            socket.emit('setScale', data)
+        }
         
 
         function updateStartPos() {
@@ -562,6 +580,7 @@
             dfield.value = data.d
             xfield.value = data.x
             yfield.value = data.y
+            scalefield.value = data.s
         });
 
         socket.on('botConnect', function (data) {
@@ -595,11 +614,11 @@
             toggleSettings();
         });
 
-        /*var pauseButton = document.querySelector('.pause');
+        var pauseButton = document.querySelector('.pause');
         pauseButton.addEventListener('click', function (e) {
             data = 0;
             socket.emit('pause', data);
-        });*/
+        });
 
         /*var rebootButton = document.querySelector('.reboot');
         rebootButton.addEventListener('click', function (e) {
@@ -644,7 +663,7 @@
             var reader = new FileReader();
             reader.onload = function (evt) {
                 var text = evt.target.result;
-                console.log(text);
+                //console.log(text);
                 origctx.drawSvg(text, 0, 0, 480, 600)
 
                 var data = {

@@ -4,7 +4,7 @@
   "localPort": 80,
   "baseDelay": 1,
   "d": 973,
-  "drawingScale":0.8,
+  "drawingScale": 80,
   "startPos": {
     "x": 200,
     "y": 325
@@ -14,9 +14,9 @@
     10
   ],
   "servo": {
-    "Min":600,
-    "Max":2400,
-    "swap":true
+    "Min": 600,
+    "Max": 2400,
+    "swap": true
   },
   "penPauseDelay": 100,
   "remoteURL": "",
