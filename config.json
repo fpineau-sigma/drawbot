@@ -3,10 +3,10 @@
   "swapDirections": false,
   "localPort": 80,
   "baseDelay": 1,
-  "d": 957,
+  "d": 973,
   "startPos": {
-    "x": 175,
-    "y": 360
+    "x": 200,
+    "y": 325
   },
   "stepsPerMM": [
     10,
