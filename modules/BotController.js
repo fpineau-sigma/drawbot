@@ -146,13 +146,12 @@ var BotController = (cfg) => {
     bc.pen = (dir) => {
         bc.penPos = dir
         // 0=down, 1=up
-        var servoD = bc.servoMax - bc.servoMin
         if (bc.swapServo){
             var servoUpPos = bc.servoMax
-            var servoDnPos = bc.servoMax - Math.floor(servoD * 0.35)
+            var servoDnPos = bc.servoMin
         }else{
             var servoUpPos = bc.servoMin
-            var servoDnPos = bc.servoMin + Math.floor(servoD * 0.35)
+            var servoDnPos = bc.servoMax
         }
 
 
