@@ -4,7 +4,7 @@
   "localPort": 80,
   "baseDelay": 1,
   "d": 973,
-  "drawingScale": 80,
+  "drawingScale": 100,
   "startPos": {
     "x": 200,
     "y": 326
@@ -21,16 +21,20 @@
   "penPauseDelay": 100,
   "remoteURL": "",
   "pins": {
-    "leftDir": 13,
-    "rightDir": 5,
-    "leftStep": 19,
-    "rightStep": 6,
+    "leftStep": 13,
+    "leftDir": 5,
+    "leftDriver": 16,
+
+    "rightStep": 19,
+    "rightDir": 6,
+    "rightDriver": 20,
+
     "penServo": 26,
+    
     "btnOne": 18,
     "btnTwo": 23,
-    "btnThree": 24,
-    "leftDriver": 16,
-    "rightDriver": 12
+    "btnThree": 24
+    
   },
   "limits": {
     "x": 480,
