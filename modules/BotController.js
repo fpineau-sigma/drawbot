@@ -23,15 +23,15 @@ var BotController = (cfg) => {
 
     /////////////////////////////////
     // MAIN SETUP VARIABLES
-    bc._BOT_ID = config.botID            // || 'two'
-    bc._DIRSWAP = config.swapDirections   // || true
+    bc._BOT_ID = config.botID               // || 'two'
+    bc._DIRSWAP = config.swapDirections     // || true
     bc.limits = config.limits
-    bc.baseDelay = config.baseDelay        // || 2
-    bc._D = config.d                // || 1000// default distance between string starts
-    bc.drawingScale = config.drawingScale
-    bc.startPos = config.startPos         // || { x: 100, y: 100 }
+    bc.baseDelay = config.baseDelay         // || 2
+    bc._D = config.d                        // || 1000// default distance between string starts
+    bc.drawingScale = config.drawingScale   // || defaults to 100%
+    bc.startPos = config.startPos           // || { x: 100, y: 100 }
     bc.stepsPerMM = config.stepsPerMM       // || [5000/500, 5000/500] // steps / mm
-    bc.penPause = config.penPauseDelay    // || 200 // pause for pen up/down movement (in ms)
+    bc.penPause = config.penPauseDelay      // || 200 // pause for pen up/down movement (in ms)
     bc.servoMin = config.servo.Min;
     bc.servoMax = config.servo.Max;
     bc.swapServo = config.servo.swap
@@ -145,7 +145,6 @@ var BotController = (cfg) => {
     bc.setDrawingScale = (data) => {
         cfg.data.drawingScale = bc.drawingScale = Number(data)// set value and store in config
         cfg.save()// save to local config.json file
-        //bc.updateStringLengths()
     }
 
     bc.pen = (dir) => {
@@ -192,8 +191,6 @@ var BotController = (cfg) => {
             callback()
         }
     }
-
-
 
     bc.makeStep = (m, d) => {
         // console.log('step',d)
@@ -278,18 +275,13 @@ var BotController = (cfg) => {
 
     bc.moveRelative = (x, y, callback, penDir = 1) => {
         console.log('---------- bc.moveRelative', x, y, ' ----------')
-
         var tox = Number(bc.pos.x) + Number(x)
         var toy = Number(bc.pos.y) + Number(y)
-
-        
-
         bc.moveTo(Number(tox), Number(toy), callback, 1)
     }
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
         console.log('---------- bc.moveTo', x, y, ' ----------')
-
         if (x == 0 && y == 0) {
             console.log("-------> homing <-------")
         }
@@ -367,7 +359,6 @@ var BotController = (cfg) => {
         // Todo stopping, moving to home position and clearing input
 		bc.penThen(1, function () { // 0=down, 1=up
             console.log("Homing and Clearing...")
-            
 		})
     }
 
@@ -393,7 +384,7 @@ var BotController = (cfg) => {
         console.log('generating path...')
         var drawingScale = config.drawingScale/100;
         console.log("drawingScale: "+drawingScale);
-        var transformed = svgpath(pathString).scale(drawingScale).round(2).toString();
+        var transformed = svgpath(pathString).scale(drawingScale).round().toString();
 
         var commands = parseSVG(transformed);
         //var commands = parseSVG(pathString);
@@ -667,62 +658,7 @@ var BotController = (cfg) => {
         doCommand()
     }
 
-    bc.drawCircle = (x, y, r, callback) => {
-        // http://jsfiddle.net/heygrady/X5fw4/
-        // Calculate a point on a circle
-        function circle(t, radius) {
-            var r = radius || 100,
-                arc = Math.PI * 2
-
-            // calculate current angle
-            var alpha = t * arc
-
-            // calculate current coords
-            var x = Math.sin(alpha) * r,
-                y = Math.cos(alpha) * r
-
-            // return coords
-            return [x, y * -1]
-        }
-
-        var n = 0 //current step
-        var pi = 3.1415926
-        var C = 2 * pi * r
-        var seg = C
-
-        function doCommand() {
-            if (n <= seg) {
-                var t = n / seg
-                var p = circle(t, r)
-                if (n == 0) {
-                    bc.moveTo(x + p[0], y + p[1], doCommand)
-                } else {
-                    bc.lineTo(x + p[0], y + p[1], doCommand)
-                }
-                n++
-            } else {
-                if (callback != undefined) callback()
-            }
-        }
-        doCommand()
-    }
-    bc.drawCircles = (o) => {
-        console.log(o.count)
-        var count = o.count
-        var n = 0
-        function doCommand() {
-            if (n < count) {
-                bc.drawCircle(o.x[n], o.y[n], o.r[n], doCommand)
-                console.log(n / count)
-                n++
-            } else {
-                console.log('done with circles!')
-            }
-        }
-        doCommand()
-    }
-
-    return bc
+ return bc
 }
 module.exports = BotController
 

@@ -23,7 +23,7 @@ var LocalServer = (cfg, controller) => {
 
     io.on('connection', function (socket) {
         console.log('connection!')
-        socket.emit('connected', { hello: 'world' })
+        socket.emit('botConnectionStatus', { connected:true })
 
         socket.on('pen',function(data){
             c.pen(data.up)
