@@ -1,4 +1,4 @@
-var isPi = require('detect-rpi');
+var isPi = require('detect-rpi'); 
 if (isPi()) {
     var Gpio = require('pigpio').Gpio
 
@@ -72,12 +72,8 @@ var BotController = (cfg) => {
         var logicPins = [config.pins.leftDriver, config.pins.rightDriver]
     }
 
-    
-    //stepPins[m].digitalWrite(1)
     /////////////////////////////////
     // CONTROLLER VARIABLES
-
-    // TODO: isolate private/public stuff
 
     bc.pos = { x: 0, y: 0 }
     bc.penPos = 0
@@ -174,10 +170,8 @@ var BotController = (cfg) => {
             if (isPi()) { servo.servoWrite(servoUpPos) }
         }
         if (bc.localio){
-            bc.localio.emit('penState', {
-                pen: Number(dir)
-            })
-            //console.log('SendPen')
+            bc.localio.emit('penState', Number(dir))
+            //console.log('SendPen: '+Number(dir))
         }
     }
 	

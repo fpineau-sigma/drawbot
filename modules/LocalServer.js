@@ -23,6 +23,7 @@ var LocalServer = (cfg, controller) => {
 
     io.on('connection', function (socket) {
         console.log('connection!')
+        socket.emit('connected', { hello: 'world' })
         socket.emit('botConnectionStatus', { connected:true })
 
         socket.on('pen',function(data){
@@ -98,6 +99,25 @@ var LocalServer = (cfg, controller) => {
     ls.start = () => {
         server.listen(config.localPort, function(){
             console.log('listening on port '+config.localPort+'...')
+            console.log('preparing pen...')
+            
+
+            let pentest = new Promise(function(resolve,reject){
+                setTimeout(() => resolve(1),1000);
+            })
+            pentest.then(function(result) {
+                c.pen(1);
+                return result;
+            });
+            pentest.then(function(result) {
+                c.pen(0);
+                return result;
+            });
+            pentest.then(function(result) {
+                c.pen(1);
+                return result;
+            });
+
         })
     }
 

@@ -2,7 +2,7 @@ var connectionIndicator = document.querySelector('#connection')
 
 var socket = io.connect('/');
 socket.on('connected', function (data) {
-    console.log('connected!');
+    //console.log('connected!');
     socket.emit('getDXY');
     socket.emit('checkBotConnection', { socketID: socket.id });
 });
@@ -96,6 +96,23 @@ var ri = radialIndicator('#percentage', {
 })
 socket.on('progressUpdate', function (data) {
     ri.animate(data.percentage)
+});
+
+socket.on('penState', function (data) {
+    //console.log("MyPen:"+data);
+    switch (data) {
+        case 0:
+            // pen is down
+            penButton.classList.remove('up')
+            penButton.classList.add('down')
+        break
+
+        case 1:
+            // pen is up
+            penButton.classList.remove('down')
+            penButton.classList.add('up')
+        break
+    }
 });
 
 socket.on('progressDraw', function (data) {
@@ -198,7 +215,7 @@ function updateStartPos() {
 xfield.onchange = yfield.onchange = updateStartPos;
 
 socket.on('DXY', function (data) {
-    console.log('DXY', data)
+    //console.log('DXY', data)
     dfield.value = data.d
     xfield.value = data.x
     yfield.value = data.y

@@ -77,14 +77,14 @@
             display:block;
             position:absolute;
             border-radius:100%;
-            border:5px solid gray;
+            border:5px transparent;
             width:16vw;
             height:16vw;
             text-align: center;
             line-height:15vw;
             text-decoration:none;
             color:gray;
-            background:white;
+            /*background:white;*/
             font-size:6vw;
             font-weight:bold;
         }
@@ -104,6 +104,7 @@
             border-color: white;
             top: 2vw;
             right: 2vw;
+            z-index:1000;
         }
         .clearcanvas{
             top:115vw;
@@ -113,13 +114,17 @@
         .pen{
             top:32vw;
             left:32vw;
+            border:5px solid white;
             border-color:white;
+            background-color:white;
         }
         .up {
-            border-color: red;
+            border-color: red !important;
+            border:5px solid red;
         }
         .down {
-            border-color: green;
+            border-color: green !important;
+            border:5px solid green;
         }
 
         .home{
@@ -245,14 +250,14 @@
 
         #positionCanvas {
             position:absolute;
-            top:0;
+            top:2vw;
             left:0;
-            border:1px solid blue     
+            /*border:1px solid blue;*/
             z-index:10
         }
         #originCanvas {
             position:absolute;
-            top:0;
+            top:2vw;
             left:0;
             border:1px solid red;
             /*background-color: red;*/
