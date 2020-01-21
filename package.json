@@ -1,5 +1,5 @@
 {
-  "name": "HexaDrawBot",
+  "name": "drawbot",
   "version": "1.0.1",
   "description": "a drawing robot",
   "main": "draw.js",
