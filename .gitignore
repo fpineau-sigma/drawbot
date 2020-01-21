@@ -2,3 +2,4 @@
 node_modules
 *.psd
 .profile
+package-lock.json
