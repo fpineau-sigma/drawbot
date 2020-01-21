@@ -284,7 +284,10 @@ var BotController = (cfg) => {
     }
 
     bc.moveTo = (x, y, callback, penDir = 1) => {
-        console.log('---------- bc.moveTo', x, y, ' ----------')
+        var x = Math.round(x);
+        var y = Math.round(y);
+
+        //console.log('---------- bc.moveTo', x, y, ' ----------')
         if (x == 0 && y == 0) {
             console.log("-------> homing <-------")
         }
@@ -296,8 +299,8 @@ var BotController = (cfg) => {
         // L1 = Math.sqrt(X² + Y²)
         // L2 = Math.sqrt((d - X)² + Y²)
 
-        var X = x + bc.startPos.x ;
-        var Y = y + bc.startPos.y ;
+        var X = Math.round(x + bc.startPos.x);
+        var Y = Math.round(y + bc.startPos.y);
 
         var X2 = X * X
         var Y2 = Y * Y
@@ -405,7 +408,7 @@ var BotController = (cfg) => {
 		    makeAbsolute(commands);
         var cmdCount = commands.length
         //console.log(cmdCount)
-		    console.log(commands);
+		console.log(commands);
 		
         console.log('drawing path...')
 		var cmdIndex = 0
@@ -424,15 +427,11 @@ var BotController = (cfg) => {
                 var cmdCode = cmd.code
 
                 console.log("Command-index: " + cmdIndex);
-
                 console.log("Command-count: " + cmdCount);
                 drawingScale = config.drawingScale / 100;
                 console.log("Drawing-scale: " + drawingScale);
-                //var myx = checkValue(cmd.x) * drawingScale;
-                //var myy = checkValue(cmd.y) * drawingScale;
-                //cmd.x = checkValue(cmd.x) * drawingScale;
-                //cmd.y = checkValue(cmd.y) * drawingScale;
-                //console.log("------ myXY: " + myx + "|" + myy);
+                //var myx = checkValue(cmd.x);
+                //var myy = checkValue(cmd.y);
 
                 cmdIndex++
                 var percentage = Math.round((cmdIndex / cmdCount) * 100)

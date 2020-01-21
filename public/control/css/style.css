@@ -255,11 +255,18 @@
             /*border:1px solid blue;*/
             z-index:10
         }
+        #progressCanvas {
+            position:absolute;
+            top:2vw;
+            left:0;
+            /*border:1px solid blue;*/
+            z-index:5
+        }
         #originCanvas {
             position:absolute;
             top:2vw;
             left:0;
-            border:1px solid red;
+            /*border:1px solid red;*/
             /*background-color: red;*/
             z-index:0
         }

@@ -115,8 +115,33 @@ socket.on('penState', function (data) {
     }
 });
 
+function crossHair(x,y,pen) {
+    //console.log(data);
+    var poscanvas = document.getElementById("positionCanvas");
+    var posctx = poscanvas.getContext("2d");
+
+    posctx.clearRect(0,0,600,800);
+    posctx.beginPath();
+    if(pen == 1){
+        posctx.lineWith = "2";
+        posctx.strokeStyle = "#FF0000";
+    }else{
+        posctx.lineWith = "2";
+        posctx.strokeStyle = "#00FF00";
+    }
+   
+    posctx.moveTo(x - 20, y);
+    posctx.lineTo(x + 20, y);
+    posctx.stroke();
+    posctx.beginPath();
+    posctx.moveTo(x, y - 20);
+    posctx.lineTo(x, y + 20);
+
+    posctx.stroke();
+}
+
 socket.on('progressDraw', function (data) {
-    console.log(data);
+    //console.log(data);
     var cmdCode = data.cmd
     var x = data.x
     var y = data.y
@@ -127,10 +152,13 @@ socket.on('progressDraw', function (data) {
     var tox2 = data.x2
     var toy2 = data.y2
     var pen = data.pen
-    var progcanvas = document.getElementById("originCanvas");
+    var progcanvas = document.getElementById("progressCanvas");
     var progctx = progcanvas.getContext("2d");
 
     var penButton = document.getElementById("penButton");
+
+    crossHair(x,y,pen);
+
     switch (pen) {
         case 0:
             // pen is down
@@ -144,7 +172,7 @@ socket.on('progressDraw', function (data) {
             penButton.classList.add('up')
         break
     }
-    
+ 
     switch (cmdCode) {
         case 'L':
             progctx.beginPath();
@@ -302,12 +330,12 @@ dropTarget.ondrop = function (e) {
 
     var reader = new FileReader();
     reader.onload = function (evt) {
-        var text = evt.target.result;
-        console.log(text);
-        origctx.drawSvg(text, 0, 0, 480, 600)
+        var svgPath = evt.target.result;
+        console.log(svgPath);
+        origctx.drawSvg(svgPath, 0, 0, 480, 600)
 
         var data = {
-            content: text
+            content: svgPath
         }
         socket.emit('drawart', data);
     };
