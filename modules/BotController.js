@@ -10,7 +10,8 @@ var cBezier = require('adaptive-bezier-curve')
 var qBezier = require('adaptive-quadratic-curve')
 var svgpath = require('svgpath');
 const {parseSVG, makeAbsolute} = require('svg-path-parser');
-var arcToBezier = require('./arcToBezier')
+var arcToBezier = require('./arcToBezier');
+var svgpath = require('svgpath');
 
 var currentX = 0;
 var currentY = 0;
@@ -26,10 +27,12 @@ var BotController = (cfg) => {
     bc._BOT_ID = config.botID               // || 'two'
     bc._DIRSWAP = config.swapDirections     // || true
     bc.limits = config.limits
+
     bc.baseDelay = config.baseDelay         // || 2
     bc._D = config.d                        // || 1000// default distance between string starts
     bc.drawingScale = config.drawingScale   // || defaults to 100%
     bc.startPos = config.startPos           // || { x: 100, y: 100 }
+
     bc.stepsPerMM = config.stepsPerMM       // || [5000/500, 5000/500] // steps / mm
     bc.penPause = config.penPauseDelay      // || 200 // pause for pen up/down movement (in ms)
     bc.servoMin = config.servo.Min;
@@ -132,6 +135,13 @@ var BotController = (cfg) => {
         cfg.save()// save to local config.json file
         bc.updateStringLengths()
     }
+    bc.setScale = (data) => {
+        console.log("bc.setscale:"+data);
+        cfg.data.drawingScale = bc.drawingScale = Number(data)// set value and store in config
+        cfg.save()// save to local config.json file
+        bc.updateStringLengths()
+    }
+
     bc.setD = (data) => {
         cfg.data.d = bc._D = Number(data)// set value and store in config
         cfg.save()// save to local config.json file
@@ -279,12 +289,22 @@ var BotController = (cfg) => {
             console.log("-------> homing <-------")
         }
         // convert x,y to l1,l2 (ideal, precise string lengths)
-        var X = x + bc.startPos.x
-        var Y = y + bc.startPos.y
+        // L1 = Math.sqrt( Math.pow(y,2) + Math.pow(x+d/2, 2));
+        // L2 = Math.sqrt( Math.pow(y,2) + Math.pow(x-d/2, 2));
+
+        // Inverse kinematics 
+        // L1 = Math.sqrt(X² + Y²)
+        // L2 = Math.sqrt((d - X)² + Y²)
+
+        var X = x + bc.startPos.x ;
+        var Y = y + bc.startPos.y ;
+
         var X2 = X * X
         var Y2 = Y * Y
+
         var DsubX = bc._D - X
         var DsubX2 = DsubX * DsubX
+                
         L1 = Math.sqrt(X2 + Y2)
         L2 = Math.sqrt(DsubX2 + Y2)
 
@@ -374,6 +394,7 @@ var BotController = (cfg) => {
 
     bc.drawPath = (pathString) => {
         bc.drawingPath = true
+
         console.log('generating path...')
         var drawingScale = config.drawingScale/100;
         console.log("drawingScale: "+drawingScale);
@@ -381,11 +402,10 @@ var BotController = (cfg) => {
 
         var commands = parseSVG(transformed);
         //var commands = parseSVG(pathString);
-		makeAbsolute(commands);
-
+		    makeAbsolute(commands);
         var cmdCount = commands.length
-        console.log(cmdCount)
-		//console.log(commands)
+        //console.log(cmdCount)
+		    console.log(commands);
 		
         console.log('drawing path...')
 		var cmdIndex = 0
@@ -397,12 +417,22 @@ var BotController = (cfg) => {
         }
 		
         function doCommand() {
+
+
             if (cmdIndex < cmdCount) {
                 var cmd = commands[cmdIndex]
                 var cmdCode = cmd.code
 
-                var tox = checkValue(bc.pos.x)
-                var toy = checkValue(bc.pos.y)
+                console.log("Command-index: " + cmdIndex);
+
+                console.log("Command-count: " + cmdCount);
+                drawingScale = config.drawingScale / 100;
+                console.log("Drawing-scale: " + drawingScale);
+                //var myx = checkValue(cmd.x) * drawingScale;
+                //var myy = checkValue(cmd.y) * drawingScale;
+                //cmd.x = checkValue(cmd.x) * drawingScale;
+                //cmd.y = checkValue(cmd.y) * drawingScale;
+                //console.log("------ myXY: " + myx + "|" + myy);
 
                 cmdIndex++
                 var percentage = Math.round((cmdIndex / cmdCount) * 100)

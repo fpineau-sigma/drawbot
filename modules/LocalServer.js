@@ -64,6 +64,12 @@ var LocalServer = (cfg, controller) => {
         socket.on('setD',function(data){
             c.setD(Number(data.d))
         })
+        socket.on('setScale',function(data){
+            c.setScale(Number(data.s))
+            console.log("setScale:"+data.s);
+        })
+
+
         socket.on('moveto',function(data){
 		    c.moveTo(data.x,data.y)
         })

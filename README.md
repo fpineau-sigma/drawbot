@@ -1,5 +1,5 @@
 
-# Drawbot ✏️🤖
+# Drawbot ✏️
 
 Drawing robot capable of rendering SVG paths over WebSockets. Powered by a Raspberry Pi running Node.js.
 This project is heavily inspired by https://github.com/andywise/drawbot and several other wall hanging drawing robots
@@ -25,6 +25,7 @@ Units should always be PIXELS -> the drawbot makes 1px to 1mm
 ## Wiring
 
 ![](wiring/Pi-Pinout.JPG) 
+![](wiring/drawbot_wiring_A4988.jpg) 
 
 ## Hardware Assembly
 
@@ -82,18 +83,6 @@ On the Drawbot Pi:
 
 * Run `npm start` or `sudo node draw.js` to start the Drawbot controller.
 
-## Adding a service and autostart bot and gui
-
-npm install forever -g
-.
-.
-.
-.
-https://www.instructables.com/id/Nodejs-App-As-a-RPI-Service-boot-at-Startup/
-
-update-rc.d drawBot defaults
-update-rc.d drawBot remove
-
 ## Controlling the Drawbot
 On a device connected to the same local network as the Drawbot Pi:
 
@@ -103,15 +92,23 @@ On a device connected to the same local network as the Drawbot Pi:
 * Drag and drop an SVG file onto the control interface to send artwork to the Drawbot!
 
 ### SVG Artwork Notes:
-* **Only the first `<path>` element will be drawn**, so if necessary, combine artwork into a single compound path.
------>> heavily working on that <---------------
-
 * The Drawbot will scale artwork so that **1 pixel = 1 millimeter**.
 
 ## Configuration
 * **Enter value for `D`:** measure distance between string starting points (in millimeters).
 * **Enter starting `X` and `Y` values:** measure distance from left and top (respectively) of left string starting point to initial pen position (also in mm).
 * Note: Values will be stored in the `config.json` file.
+
+## 3.2´´ LCD screen
+```
+sudo rm -rf LCD-show
+git clone https://github.com/goodtft/LCD-show.git
+chmod -R 755 LCD-show
+cd LCD-show/
+sudo ./LCD32-show
+If you need to switch back to the traditional HDMI display
+sudo ./LCD-hdmi
+```
 
 ## Rendering Raster Artwork 
 * https://github.com/jwcliff/Drawbot_image_to_gcode_v2
