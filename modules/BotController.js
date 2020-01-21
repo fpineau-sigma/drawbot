@@ -200,9 +200,11 @@ var BotController = (cfg) => {
         if (bc._DIRSWAP) d = !d
         if (isPi()) { dirPins[m].digitalWrite(d) }
         if (isPi()) { stepPins[m].digitalWrite(1) }
-        setTimeout(function () {
-            if (isPi()) { stepPins[m].digitalWrite(0) }
-        }, 1)
+        if (isPi()) { 
+            setTimeout(function () {
+                if (isPi()) { stepPins[m].digitalWrite(0) }
+            }, 1)
+        }
     }
 
     // TODO: This could move to a python script for faster execution (faster than bc.baseDelay=2 miliseconds)
@@ -243,7 +245,7 @@ var BotController = (cfg) => {
             } else {
                 // paused!
                 console.log('paused!')
-                bc.paused = false
+                //bc.paused = false
             }
         }
         doStep()
@@ -314,8 +316,10 @@ var BotController = (cfg) => {
         // console.log('L:',L1,L2)
 
         // convert string lengths to motor steps (float to int)
+
         var s1 = Math.round(L1 * bc.stepsPerMM[0])
         var s2 = Math.round(L2 * bc.stepsPerMM[1])
+        
         // console.log('s:',s1,s2)
         // console.log('bc.currentSteps:',bc.currentSteps[0],bc.currentSteps[1])
 
@@ -338,6 +342,8 @@ var BotController = (cfg) => {
         function doRotation() {
             // do the rotation!
             bc.rotateBoth(ssteps1, ssteps2, sdir1, sdir2, callback)
+
+            
 
             // store new current steps
             bc.currentSteps[0] = s1
@@ -401,11 +407,17 @@ var BotController = (cfg) => {
         console.log('generating path...')
         var drawingScale = config.drawingScale/100;
         console.log("drawingScale: "+drawingScale);
-        var transformed = svgpath(pathString).scale(drawingScale).round().toString();
+        if(drawingScale != 1){
+            //var transformed = svgpath(pathString).scale(drawingScale).round().toString();
+            var transformed = svgpath(pathString).scale(drawingScale).toString();
+        }else{
+            var transformed = pathString;
+        }
+
 
         var commands = parseSVG(transformed);
         //var commands = parseSVG(pathString);
-		    makeAbsolute(commands);
+		makeAbsolute(commands);
         var cmdCount = commands.length
         //console.log(cmdCount)
 		console.log(commands);
@@ -435,7 +447,8 @@ var BotController = (cfg) => {
 
                 cmdIndex++
                 var percentage = Math.round((cmdIndex / cmdCount) * 100)
-                console.log(cmd, percentage + '%')
+                //console.log("command"+cmd)
+                //console.log(percentage + '%')
                 if (bc.client) bc.client.emit('progressUpdate', {
                     botID: bc._BOT_ID,
                     percentage: percentage
