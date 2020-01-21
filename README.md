@@ -25,7 +25,7 @@ Units should always be PIXELS -> the drawbot makes 1px to 1mm
 ## Wiring
 
 ![](wiring/Pi-Pinout.JPG) 
-![](wiring/drawbot_wiring_A4988.jpg) 
+![](wiring/drawbot_wiring_A4988.jpg#123) 
 
 ## Hardware Assembly
 
