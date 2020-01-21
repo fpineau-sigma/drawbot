@@ -6,7 +6,7 @@ var Config = (file, callback) => {
     c.data = {}
     c.save = (cb) => {
         jsonfile.writeFile(file, c.data,  {spaces: 2, EOL: '\r\n'}, function (err) {
-          console.error("error: "+err)
+        console.error("error: "+err)
           if(cb!=undefined) cb()
         })
     }
