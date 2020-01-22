@@ -1,5 +1,3 @@
-const Gpio = require('pigpio').Gpio;
-
 class A4988 {
 
     constructor({ step = 15, dir = 14, ms1 = 24, ms2 = 23, ms3 = 18, enable = 25 }) {
