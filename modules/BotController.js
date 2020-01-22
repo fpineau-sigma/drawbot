@@ -198,7 +198,7 @@ var BotController = (cfg) => {
 
     //////////////////// TODO: change this to a wave function with pigpio
 
-    bc.makeStep = (m, d) => {
+    /*bc.makeStep = (m, d) => {
         // console.log('step',d)
         if (bc._DIRSWAP) d = !d
         if (isPi()) { dirPins[m].digitalWrite(d) }
@@ -208,33 +208,48 @@ var BotController = (cfg) => {
                 if (isPi()) { stepPins[m].digitalWrite(0) }
             }, 1)
         }
-    }
+    }*/
     
 
+    // bc.rotateBoth takes the calculated steps and moves both motors
+    // when both are finished the callback tells the function doRotation to go on (s1 and s2 are then taken)
+
+
     bc.rotateBoth = (s1, s2, d1, d2, callback) => {
-        //console.log('bc.rotateBoth', s1, s2, d1, d2)
-        var steps = Math.round(Math.max(s1, s2))
-        var a1 = 0
-        var a2 = 0
+        console.log('bc.rotateBoth', s1, s2, d1, d2)
+        //var steps = Math.round(Math.max(s1, s2))
+        var a1 = 0 // actually done steps on motor 1
+        var a2 = 0 // actually done steps on motor 2
         var stepped = 0
 
+        // TODO: integrate stepping based on A4988 library
         var doStep = function () {
-            if (!bc.paused) {
+            if (stepped < steps) {
+                stepped++
+
+            }else{
+                if (callback != undefined) callback() 
+            }
+        }
+        doStep() //executed once when bc.rotateBoth is called
+
+        /*var doStep = function () {
+            //if (!bc.paused) {
                 setTimeout(function () {
                     //console.log(stepped, steps)
                     if (stepped < steps) {
                         stepped++
                         //console.log('a1,a2', a1, a2)
 
-                        a1 += s1
-                        if (a1 >= steps) {
-                            a1 -= steps
+                        a1 = a1 + s1                //add max steps to a1 
+                        if (a1 >= steps) {          // 
+                            a1 = a1 - steps 
                             bc.makeStep(0, d1)
                         }
 
-                        a2 += s2
+                        a2 = a2 + s2
                         if (a2 >= steps) {
-                            a2 -= steps
+                            a2 = a2 - steps
                             bc.makeStep(1, d2)
                         }
 
@@ -245,15 +260,19 @@ var BotController = (cfg) => {
                         if (callback != undefined) callback()
                     }
                 }, bc.baseDelay)
-            } else {
+            //} else {
                 // paused!
-                console.log('paused!')
+                //console.log('paused!')
                 //bc.paused = false
-            }
+            //}
         }
-        doStep()
+        doStep()*/
+
+        //if (callback != undefined) callback()
+
     }
 
+    // bc.rotate is only used for manual positioning via gui
     bc.rotate = (motorIndex, dirIndex, delay, steps, callback) => {
          console.log('bc.rotate',motorIndex, dirIndex, delay, steps)
         bc.stepCounts[motorIndex] = Math.round(steps)
@@ -274,7 +293,7 @@ var BotController = (cfg) => {
                 if (callback != undefined) callback()
             }
         }
-        doStep(delay, motorIndex)
+        doStep(delay, motorIndex) //executed once when bc.rotate is called
     }
 
     //////////////////// END TODO: change this to a wave function with pigpio
