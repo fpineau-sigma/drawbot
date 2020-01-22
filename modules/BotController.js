@@ -12,6 +12,7 @@ var svgpath = require('svgpath');
 const {parseSVG, makeAbsolute} = require('svg-path-parser');
 var arcToBezier = require('./arcToBezier');
 var svgpath = require('svgpath');
+const StepperDriver = require('./A4988');
 
 var currentX = 0;
 var currentY = 0;
@@ -195,6 +196,8 @@ var BotController = (cfg) => {
         }
     }
 
+    //////////////////// TODO: change this to a wave function with pigpio
+
     bc.makeStep = (m, d) => {
         // console.log('step',d)
         if (bc._DIRSWAP) d = !d
@@ -206,8 +209,8 @@ var BotController = (cfg) => {
             }, 1)
         }
     }
+    
 
-    // TODO: This could move to a python script for faster execution (faster than bc.baseDelay=2 miliseconds)
     bc.rotateBoth = (s1, s2, d1, d2, callback) => {
         //console.log('bc.rotateBoth', s1, s2, d1, d2)
         var steps = Math.round(Math.max(s1, s2))
@@ -274,6 +277,7 @@ var BotController = (cfg) => {
         doStep(delay, motorIndex)
     }
 
+    //////////////////// END TODO: change this to a wave function with pigpio
 
     /////////////////////////////////
     // DRAWING METHODS
@@ -338,12 +342,18 @@ var BotController = (cfg) => {
         var ssteps2 = Math.abs(sd2)
         // console.log('ssteps:',ssteps1,ssteps2)
 
+        // convert step differences to degree movement
+        //var deg1 = (ssteps1 * 0.225).toFixed(2);
+        //var deg2 = (ssteps2 * 0.225).toFixed(2);
+        //var degdir1 = (sd1 > 0) ? "-" : "+"
+        //var degdir2 = (sd2 > 0) ? "+" : "-"
+
+        //console.log("Degrees Rotate | l: "+degdir1+""+deg1+" | r: "+degdir2+""+deg2);
+
 
         function doRotation() {
             // do the rotation!
             bc.rotateBoth(ssteps1, ssteps2, sdir1, sdir2, callback)
-
-            
 
             // store new current steps
             bc.currentSteps[0] = s1
@@ -438,10 +448,10 @@ var BotController = (cfg) => {
                 var cmd = commands[cmdIndex]
                 var cmdCode = cmd.code
 
-                console.log("Command-index: " + cmdIndex);
-                console.log("Command-count: " + cmdCount);
+                //console.log("Command-index: " + cmdIndex);
+                //console.log("Command-count: " + cmdCount);
                 drawingScale = config.drawingScale / 100;
-                console.log("Drawing-scale: " + drawingScale);
+                //console.log("Drawing-scale: " + drawingScale);
                 //var myx = checkValue(cmd.x);
                 //var myy = checkValue(cmd.y);
 
