@@ -1,14 +1,19 @@
-const Gpio = require('pigpio').Gpio;
+/* -----------------------------------------------------------------------
+*   the microstepping setting is ignored if ms1/ms2/ms3 are not provided
+*   Default setting is EIGHTH step
+*
+* ------------------------------------------------------------------------ */
 
 class A4988 {
-
-    constructor({ step = 15, dir = 14, ms1 = 24, ms2 = 23, ms3 = 18, enable = 25 }) {
+    // BCM  GPIO PINS (the ones with the name GPIO... https://raspberrypi.stackexchange.com/questions/12966/what-is-the-difference-between-board-and-bcm-for-gpio-pin-numbering)
+    constructor({ step = 13, dir = 5, ms1 = 24, ms2 = 23, ms3 = 18, enable = 12 }) {
+    //constructor({ step = 19, dir = 6, ms1 = 24, ms2 = 23, ms3 = 18, enable = 12 }) {
 
         this._abort = false;
         this._delay = 1;
         this._direction = false;
         this._steps = 0;
-        this._step_size = 'FULL';
+        this._step_size = 'EIGHTH';
         this._enabled = true;
         this._turning = false;
 
