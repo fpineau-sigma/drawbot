@@ -109,8 +109,8 @@ var BotController = (cfg) => {
 
     bc.setStates = () =>{
         if (isPi()) {
-            logicPins[0].digitalWrite(1); // activate Left Motor Driver
-            logicPins[1].digitalWrite(1); // activate Right Motor Driver
+            logicPins[0].digitalWrite(1); // power Left Motor Driver
+            logicPins[1].digitalWrite(1); // power Right Motor Driver
             console.log("pin 1:"+logicPins[0]);
             console.log("pin 2:"+logicPins[1]);
         }
