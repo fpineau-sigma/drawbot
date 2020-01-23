@@ -198,7 +198,7 @@ var BotController = (cfg) => {
 
     //////////////////// TODO: change this to a wave function with pigpio
 
-    /*bc.makeStep = (m, d) => {
+    bc.makeStep = (m, d) => {
         // console.log('step',d)
         if (bc._DIRSWAP) d = !d
         if (isPi()) { dirPins[m].digitalWrite(d) }
@@ -208,7 +208,7 @@ var BotController = (cfg) => {
                 if (isPi()) { stepPins[m].digitalWrite(0) }
             }, 1)
         }
-    }*/
+    }
     
 
     // bc.rotateBoth takes the calculated steps and moves both motors
@@ -216,14 +216,24 @@ var BotController = (cfg) => {
 
 
     bc.rotateBoth = (s1, s2, d1, d2, callback) => {
-        console.log('bc.rotateBoth', s1, s2, d1, d2)
-        //var steps = Math.round(Math.max(s1, s2))
-        var a1 = 0 // actually done steps on motor 1
-        var a2 = 0 // actually done steps on motor 2
-        var stepped = 0
+        console.log('--------------------  bc.rotateBoth: ', s1, s2, d1, d2)
+        var steps = Math.round(Math.max(s1, s2))        // use biggest number of steps
+        var minsteps = Math.round(Math.min(s1, s2))     
 
+        if (isPi()) {
+
+        } else {
+            bc.baseDelay = 0;
+        }
+
+        // the motor with the bigger step number always rotates and the one with the smaller rotates every (steps/minsteps)th time
+
+        var a1 = 0                                      // counter for steps on motor 1
+        var a2 = 0                                      // counter for steps on motor 2
+        var stepped = 0
+ 
         // TODO: integrate stepping based on A4988 library
-        var doStep = function () {
+        /*var doStep = function () {
             if (stepped < steps) {
                 stepped++
 
@@ -232,31 +242,31 @@ var BotController = (cfg) => {
             }
         }
         doStep() //executed once when bc.rotateBoth is called
-
-        /*var doStep = function () {
+        */
+        var doStep = function () {
             //if (!bc.paused) {
                 setTimeout(function () {
-                    //console.log(stepped, steps)
-                    if (stepped < steps) {
+                    console.log("stepped: "+ stepped+" | steps: "+steps);
+                    if (stepped < steps) { // this synchronizes movement between both motors
                         stepped++
-                        //console.log('a1,a2', a1, a2)
+                        console.log("a1: "+a1+" | a2: "+a2);
 
-                        a1 = a1 + s1                //add max steps to a1 
-                        if (a1 >= steps) {          // 
-                            a1 = a1 - steps 
-                            bc.makeStep(0, d1)
+                        a1 += s1            // add steps to do to the counter
+                        if(a1>=steps){      // rotates only if counter is bigger or equal biggest number of steps
+                            a1 -= steps     // subtract biggest number of steps from counter
+                            //bc.makeStep(0,d1)   //do a step on motor
                         }
 
-                        a2 = a2 + s2
-                        if (a2 >= steps) {
-                            a2 = a2 - steps
-                            bc.makeStep(1, d2)
+                        a2 += s2            // add steps to do to the counter
+                        if(a2>=steps){      // rotates only if counter is bigger or equal biggest number of steps
+                            a2 -= steps     // subtract biggest number of steps from counter
+                            //bc.makeStep(1,d2) //do a step on motor
                         }
 
                         doStep()
 
                     } else {
-                        // console.log('bc.rotateBoth done!')
+                        console.log('-------------------- bc.rotateBoth done!')
                         if (callback != undefined) callback()
                     }
                 }, bc.baseDelay)
@@ -266,10 +276,7 @@ var BotController = (cfg) => {
                 //bc.paused = false
             //}
         }
-        doStep()*/
-
-        //if (callback != undefined) callback()
-
+        doStep()
     }
 
     // bc.rotate is only used for manual positioning via gui
