@@ -16,6 +16,7 @@ const StepperDriver = require('./A4988');
 
 var currentX = 0;
 var currentY = 0;
+var cmdIndex = 0;
 
 var BotController = (cfg) => {
 
@@ -165,7 +166,6 @@ var BotController = (cfg) => {
             var servoDnPos = bc.servoMax
         }
 
-
         if (dir == 1) {
             // lift pen up
             console.log('Pen: up ' + servoUpPos)
@@ -244,12 +244,12 @@ var BotController = (cfg) => {
         doStep() //executed once when bc.rotateBoth is called
         */
         var doStep = function () {
-            //if (!bc.paused) {
+            if (bc.paused != true) {
                 setTimeout(function () {
-                    console.log("stepped: "+ stepped+" | steps: "+steps);
+                    //console.log("stepped: "+ stepped+" | steps: "+steps);
                     if (stepped < steps) { // this synchronizes movement between both motors
                         stepped++
-                        console.log("a1: "+a1+" | a2: "+a2);
+                        //console.log("a1: "+a1+" | a2: "+a2);
 
                         a1 += s1            // add steps to do to the counter
                         if(a1>=steps){      // rotates only if counter is bigger or equal biggest number of steps
@@ -262,19 +262,18 @@ var BotController = (cfg) => {
                             a2 -= steps     // subtract biggest number of steps from counter
                             //bc.makeStep(1,d2) //do a step on motor
                         }
-
                         doStep()
-
                     } else {
                         console.log('-------------------- bc.rotateBoth done!')
                         if (callback != undefined) callback()
                     }
                 }, bc.baseDelay)
-            //} else {
+            } else {
                 // paused!
-                //console.log('paused!')
-                //bc.paused = false
-            //}
+                console.log('paused!'); console.log(bc.paused);
+                bc.paused = false
+                console.log('paused?'); console.log(bc.paused);
+            }
         }
         doStep()
     }
@@ -407,10 +406,12 @@ var BotController = (cfg) => {
     }
 
     bc.pause = () => {
-        //bc.paused = !(bc.paused != false)
-        console.log("stopped: ", bc.paused)
-
-        var cmdCount = cmdIndex;
+        bc.paused = !(bc.paused != false)
+        console.log("paused: ", bc.paused)
+        if(bc.paused){
+           // bc.drawPath.doCommand();
+        }
+        //bc.paused = true
     }
 
     bc.clearcanvas = () => {
@@ -438,28 +439,23 @@ var BotController = (cfg) => {
     }
 
     bc.drawPath = (pathString) => {
-        bc.drawingPath = true
 
+        bc.drawingPath = true
         console.log('generating path...')
         var drawingScale = config.drawingScale/100;
         console.log("drawingScale: "+drawingScale);
+
         if(drawingScale != 1){
-            //var transformed = svgpath(pathString).scale(drawingScale).round().toString();
             var transformed = svgpath(pathString).scale(drawingScale).toString();
         }else{
             var transformed = pathString;
         }
 
-
         var commands = parseSVG(transformed);
-        //var commands = parseSVG(pathString);
 		makeAbsolute(commands);
         var cmdCount = commands.length
-        //console.log(cmdCount)
 		console.log(commands);
-		
         console.log('drawing path...')
-		var cmdIndex = 0
         var prevCmd
 
         // TODO check if number is not negative or out of drawing bounds for safety reasons
@@ -468,210 +464,218 @@ var BotController = (cfg) => {
         }
 		
         function doCommand() {
+            //if(!bc.paused){
+               // console.log("--- paused:");
+                //console.log(bc.paused);
+                if (cmdIndex < cmdCount) {
+                    var cmd = commands[cmdIndex]
+                    var cmdCode = cmd.code
 
+                    console.log("Command-index: " + cmdIndex);
+                    console.log("Command-count: " + cmdCount);
+                    drawingScale = config.drawingScale / 100;
+                    //console.log("Drawing-scale: " + drawingScale);
+                    //var myx = checkValue(cmd.x);
+                    //var myy = checkValue(cmd.y);
 
-            if (cmdIndex < cmdCount) {
-                var cmd = commands[cmdIndex]
-                var cmdCode = cmd.code
+                    cmdIndex++
+                    var percentage = Math.round((cmdIndex / cmdCount) * 100)
+                    //console.log("command"+cmd)
+                    //console.log(percentage + '%')
+                    if (bc.client) bc.client.emit('progressUpdate', {
+                        botID: bc._BOT_ID,
+                        percentage: percentage
+                    })
+                    if (bc.localio) bc.localio.emit('progressUpdate', {
+                        percentage: percentage
+                    })
 
-                //console.log("Command-index: " + cmdIndex);
-                //console.log("Command-count: " + cmdCount);
-                drawingScale = config.drawingScale / 100;
-                //console.log("Drawing-scale: " + drawingScale);
-                //var myx = checkValue(cmd.x);
-                //var myy = checkValue(cmd.y);
+                    if (bc.localio) bc.localio.emit('progressDraw', {
+                        cmd: cmdCode,
+                        x: checkValue(Number(cmd.x)),
+                        y: checkValue(Number(cmd.y)),
+                        x0: checkValue(Number(cmd.x0)),
+                        y0: checkValue(Number(cmd.y0)),
+                        x1: checkValue(Number(cmd.x1)),
+                        y1: checkValue(Number(cmd.y1)),
+                        x2: checkValue(Number(cmd.x2)),
+                        y2: checkValue(Number(cmd.y2)),
+                        pen: Number(bc.penPos)
+                    })
 
-                cmdIndex++
-                var percentage = Math.round((cmdIndex / cmdCount) * 100)
-                //console.log("command"+cmd)
-                //console.log(percentage + '%')
-                if (bc.client) bc.client.emit('progressUpdate', {
-                    botID: bc._BOT_ID,
-                    percentage: percentage
-                })
-                if (bc.localio) bc.localio.emit('progressUpdate', {
-                    percentage: percentage
-                })
+                    switch (cmdCode) {
+                        case 'M':
+                            // absolute move
+                            tox = checkValue(Number(cmd.x))
+                            toy = checkValue(Number(cmd.y))
+                            bc.penThen(1, function () { // 0=down, 1=up
+                                bc.moveTo(Number(tox), Number(toy), doCommand)
+                            })
+                            break
+                        case 'L':
+                            // absolute line
+                            tox = checkValue(Number(cmd.x))
+                            toy = checkValue(Number(cmd.y))
+                            bc.penThen(0, function () { // 0=down, 1=up
+                                bc.lineTo(Number(tox), Number(toy), doCommand)
+                            })
+                            break
+                        case 'H':
+                            // absolute horizontal line
+                            tox = checkValue(Number(cmd.x))
+                            bc.penThen(0, function () { // 0=down, 1=up
+                                bc.lineTo(Number(tox), Number(toy), doCommand)
+                            })
+                            break
+                        case 'V':
+                            // absolute vertical line
+                            toy = checkValue(Number(cmd.y))
+                            bc.penThen(0, function () { // 0=down, 1=up
+                                bc.lineTo(Number(tox), Number(toy), doCommand)
+                            })
+                            break
+                        case 'C':
+                            // absolute cubic bezier curve
+                            bc.penThen(0, function () { // 0=down, 1=up
+                                bc.drawCubicBezier(
+                                    // [{x:tox,y:toy}, {x:cmd.x1,y:cmd.y1}, {x:cmd.x2,y:cmd.y2}, {x:cmd.x,y:cmd.y}],
+                                    // 0.01,
+                                    [[tox, toy], [checkValue(cmd.x1), checkValue(cmd.y1)], [checkValue(cmd.x2), checkValue(cmd.y2)], [checkValue(cmd.x), checkValue(cmd.y)]],
+                                    1,
+                                    doCommand
+                                )
+                            })
+                            break
+                        case 'S':
+                            // absolute smooth cubic bezier curve
 
-                if (bc.localio) bc.localio.emit('progressDraw', {
-                    cmd: cmdCode,
-                    x: checkValue(Number(cmd.x)),
-                    y: checkValue(Number(cmd.y)),
-                    x0: checkValue(Number(cmd.x0)),
-                    y0: checkValue(Number(cmd.y0)),
-                    x1: checkValue(Number(cmd.x1)),
-                    y1: checkValue(Number(cmd.y1)),
-                    x2: checkValue(Number(cmd.x2)),
-                    y2: checkValue(Number(cmd.y2)),
-                    pen: Number(bc.penPos)
-                })
-
-                switch (cmdCode) {
-                    case 'M':
-                        // absolute move
-                        tox = checkValue(Number(cmd.x))
-                        toy = checkValue(Number(cmd.y))
-						bc.penThen(1, function () { // 0=down, 1=up
-							bc.moveTo(Number(tox), Number(toy), doCommand)
-						})
-                        break
-                    case 'L':
-                        // absolute line
-                        tox = checkValue(Number(cmd.x))
-                        toy = checkValue(Number(cmd.y))
-						bc.penThen(0, function () { // 0=down, 1=up
-							bc.lineTo(Number(tox), Number(toy), doCommand)
-						})
-                        break
-                    case 'H':
-                        // absolute horizontal line
-                        tox = checkValue(Number(cmd.x))
-						bc.penThen(0, function () { // 0=down, 1=up
-							bc.lineTo(Number(tox), Number(toy), doCommand)
-						})
-                        break
-                    case 'V':
-                        // absolute vertical line
-                        toy = checkValue(Number(cmd.y))
-						bc.penThen(0, function () { // 0=down, 1=up
-							bc.lineTo(Number(tox), Number(toy), doCommand)
-						})
-                        break
-                    case 'C':
-                        // absolute cubic bezier curve
-						bc.penThen(0, function () { // 0=down, 1=up
-							bc.drawCubicBezier(
-								// [{x:tox,y:toy}, {x:cmd.x1,y:cmd.y1}, {x:cmd.x2,y:cmd.y2}, {x:cmd.x,y:cmd.y}],
-								// 0.01,
-                                [[tox, toy], [checkValue(cmd.x1), checkValue(cmd.y1)], [checkValue(cmd.x2), checkValue(cmd.y2)], [checkValue(cmd.x), checkValue(cmd.y)]],
-								1,
-								doCommand
-							)
-						})
-                        break
-                    case 'S':
-                        // absolute smooth cubic bezier curve
-
-                        // check to see if previous command was a C or S
-                        // if not, the inferred control point is assumed to be equal to the start curve's start point
-                        var inf
-                        if (prevCmd.command.indexOf('curveto') < 0) {
-                            inf = {
-                                x: tox,
-                                y: toy
+                            // check to see if previous command was a C or S
+                            // if not, the inferred control point is assumed to be equal to the start curve's start point
+                            var inf
+                            if (prevCmd.command.indexOf('curveto') < 0) {
+                                inf = {
+                                    x: tox,
+                                    y: toy
+                                }
+                            } else {
+                                // get absolute x2 and y2 values from previous command if previous command was relative
+                                if (prevCmd.relative) {
+                                    prevCmd.x2 = bc.pos.x - prevCmd.x + prevCmd.x2
+                                    prevCmd.y2 = bc.pos.y - prevCmd.y + prevCmd.y2
+                                }
+                                // calculate inferred control point from previous commands
+                                // reflection of x2,y2 of previous commands
+                                inf = {
+                                    x: tox + (tox - prevCmd.x2),// make prevCmd.x2 and y2 values absolute, not relative for calculation
+                                    y: toy + (toy - prevCmd.y2)
+                                }
                             }
-                        } else {
-                            // get absolute x2 and y2 values from previous command if previous command was relative
-                            if (prevCmd.relative) {
-                                prevCmd.x2 = bc.pos.x - prevCmd.x + prevCmd.x2
-                                prevCmd.y2 = bc.pos.y - prevCmd.y + prevCmd.y2
-                            }
-                            // calculate inferred control point from previous commands
-                            // reflection of x2,y2 of previous commands
-                            inf = {
-                                x: tox + (tox - prevCmd.x2),// make prevCmd.x2 and y2 values absolute, not relative for calculation
-                                y: toy + (toy - prevCmd.y2)
-                            }
-                        }
 
-                        // draw it!
-                        var pts = [[tox, toy], [inf.x, inf.y], [cmd.x2, cmd.y2], [cmd.x, cmd.y]]
-                        console.log('calculated points:', pts)
-						bc.penThen(0, function () { // 0=down, 1=up
-							bc.drawCubicBezier(
-								pts,
-								1,
-								doCommand
-							)
-						})	
-                        break
-                    case 'Q':
-                        // absolute quadratic bezier curve
-						bc.penThen(0, function () { // 0=down, 1=up
-							bc.drawQuadraticBezier(
-                                
-                                [[tox, toy], [checkValue(cmd.x1), checkValue(cmd.y1)], [checkValue(cmd.x), checkValue(cmd.y)]],
-								1,
-								doCommand
-							)
-						})	
-                        break
-                     case 'T':
-                        // absolute smooth quadratic bezier curve
+                            // draw it!
+                            var pts = [[tox, toy], [inf.x, inf.y], [cmd.x2, cmd.y2], [cmd.x, cmd.y]]
+                            console.log('calculated points:', pts)
+                            bc.penThen(0, function () { // 0=down, 1=up
+                                bc.drawCubicBezier(
+                                    pts,
+                                    1,
+                                    doCommand
+                                )
+                            })	
+                            break
+                        case 'Q':
+                            // absolute quadratic bezier curve
+                            bc.penThen(0, function () { // 0=down, 1=up
+                                bc.drawQuadraticBezier(
+                                    
+                                    [[tox, toy], [checkValue(cmd.x1), checkValue(cmd.y1)], [checkValue(cmd.x), checkValue(cmd.y)]],
+                                    1,
+                                    doCommand
+                                )
+                            })	
+                            break
+                        case 'T':
+                            // absolute smooth quadratic bezier curve
 
-                        // check to see if previous command was a C or S
-                        // if not, the inferred control point is assumed to be equal to the start curve's start point
-                        var inf
-                        if (prevCmd.command.indexOf('curveto') < 0) {
-                            inf = {
-                                x: tox,
-                                y: toy
+                            // check to see if previous command was a C or S
+                            // if not, the inferred control point is assumed to be equal to the start curve's start point
+                            var inf
+                            if (prevCmd.command.indexOf('curveto') < 0) {
+                                inf = {
+                                    x: tox,
+                                    y: toy
+                                }
+                            } else {
+                                // get absolute x1 and y1 values from previous command if previous command was relative
+                                if (prevCmd.relative) {
+                                    prevCmd.x1 = bc.pos.x - prevCmd.x + prevCmd.x1
+                                    prevCmd.y1 = bc.pos.y - prevCmd.y + prevCmd.y1
+                                }
+                                // calculate inferred control point from previous commands
+                                // reflection of x1,y1 of previous commands
+                                inf = {
+                                    x: tox + (tox - prevCmd.x1),
+                                    y: toy + (toy - prevCmd.y1)
+                                }
                             }
-                        } else {
-                            // get absolute x1 and y1 values from previous command if previous command was relative
-                            if (prevCmd.relative) {
-                                prevCmd.x1 = bc.pos.x - prevCmd.x + prevCmd.x1
-                                prevCmd.y1 = bc.pos.y - prevCmd.y + prevCmd.y1
-                            }
-                            // calculate inferred control point from previous commands
-                            // reflection of x1,y1 of previous commands
-                            inf = {
-                                x: tox + (tox - prevCmd.x1),
-                                y: toy + (toy - prevCmd.y1)
-                            }
-                        }
 
-                        // draw it!
-						bc.penThen(0, function () { // 0=down, 1=up
-							bc.drawQuadraticBezier(
-								[[tox, toy], [inf.x, inf.y], [cmd.x, cmd.y]],
-								1,
-								doCommand
-							)
-						})
-                        break
-                    case 'A':
-                        // absolute arc
+                            // draw it!
+                            bc.penThen(0, function () { // 0=down, 1=up
+                                bc.drawQuadraticBezier(
+                                    [[tox, toy], [inf.x, inf.y], [cmd.x, cmd.y]],
+                                    1,
+                                    doCommand
+                                )
+                            })
+                            break
+                        case 'A':
+                            // absolute arc
 
-                        // convert arc to cubic bezier curves
-                        var curves = arcToBezier({
-                            px: tox,
-                            py: toy,
-                            cx: cmd.x,
-                            cy: cmd.y,
-                            rx: cmd.rx,
-                            ry: cmd.ry,
-                            xAxisRotation: cmd.xAxisRotation,
-                            largeArcFlag: cmd.largeArc,
-                            sweepFlag: cmd.sweep
-                        })
-                        console.log(curves)
+                            // convert arc to cubic bezier curves
+                            var curves = arcToBezier({
+                                px: tox,
+                                py: toy,
+                                cx: cmd.x,
+                                cy: cmd.y,
+                                rx: cmd.rx,
+                                ry: cmd.ry,
+                                xAxisRotation: cmd.xAxisRotation,
+                                largeArcFlag: cmd.largeArc,
+                                sweepFlag: cmd.sweep
+                            })
+                            console.log(curves)
 
-                        // draw the arc
-						bc.penThen(0, function () { // 0=down, 1=up
-							bc.drawArc(curves, doCommand)
-						})
-                        break
-                    case 'Z':
-                        tox = checkValue(Number(cmd.x))
-                        toy = checkValue(Number(cmd.y))
-						bc.penThen(0, function () { // 0=down, 1=up
-							bc.lineTo(tox, toy, doCommand)
-						})
-                        break
+                            // draw the arc
+                            bc.penThen(0, function () { // 0=down, 1=up
+                                bc.drawArc(curves, doCommand)
+                            })
+                            break
+                        case 'Z':
+                            tox = checkValue(Number(cmd.x))
+                            toy = checkValue(Number(cmd.y))
+                            bc.penThen(0, function () { // 0=down, 1=up
+                                bc.lineTo(tox, toy, doCommand)
+                            })
+                            break
+                    }
+
+                    prevCmd = cmd
+
+                } else {
+                    bc.penThen(1, function () { // 0=down, 1=up
+                        cmdCount = 0
+                        cmdIndex = 0
+                        console.log('path done!')
+                        bc.drawingPath = false
+                        bc.drawNextPath()
+                    })
                 }
-
-                prevCmd = cmd
-
-            } else {
-				bc.penThen(1, function () { // 0=down, 1=up
-					cmdCount = 0
-					cmdIndex = 0
-                    console.log('path done!')
-					bc.drawingPath = false
-					bc.drawNextPath()
-				})
-			}
+            /*}else{
+                console.log("--- paused:");
+                console.log(bc.paused);
+                console.log("Command-index: " + cmdIndex);
+                console.log("Command-count: " + cmdCount);
+                //doCommand();
+            }*/
         }
         doCommand()
     }

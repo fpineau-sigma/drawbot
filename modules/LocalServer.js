@@ -62,6 +62,7 @@ var LocalServer = (cfg, controller) => {
             console.log("setscale:" + data.drawingScale)
         })
         socket.on('setD',function(data){
+            console.log(data)
             c.setD(Number(data.d))
         })
         socket.on('setScale',function(data){
