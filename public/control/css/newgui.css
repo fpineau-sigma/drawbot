@@ -361,3 +361,40 @@ aside {
 	left:15vw;
 	z-index:0
 }
+#connection{
+	color:lightgray;
+	display:block;
+	position:absolute;
+	left:88vw;
+	top:22vh;
+	text-align: center;
+}
+.disconnected{
+	color:red !important;
+}
+.rebooting{
+	color:orange !important;
+}
+.connected{
+	color:green !important;
+}
+
+.up {
+	border-color: red !important;
+	border:5px solid red;
+}
+.down {
+	border-color: green !important;
+	border:5px solid green;
+}
+
+#percentage{
+	display:flex;
+	align-items: center;
+	justify-content: center;
+	position:absolute;
+	width:25vw;
+	height:25vw;
+	left:37vw;
+	top:0vh;
+}

@@ -61,15 +61,11 @@ var LocalServer = (cfg, controller) => {
             c.setDrawingScale(data.drawingScale);
             console.log("setscale:" + data.drawingScale)
         })
+
         socket.on('setD',function(data){
             console.log(data)
             c.setD(Number(data.d))
         })
-        socket.on('setScale',function(data){
-            c.setScale(Number(data.s))
-            console.log("setScale:"+data.s);
-        })
-
 
         socket.on('moveto',function(data){
 		    c.moveTo(data.x,data.y)
