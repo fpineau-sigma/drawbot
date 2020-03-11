@@ -254,17 +254,17 @@ var BotController = (cfg) => {
                         a1 += s1            // add steps to do to the counter
                         if(a1>=steps){      // rotates only if counter is bigger or equal biggest number of steps
                             a1 -= steps     // subtract biggest number of steps from counter
-                            //bc.makeStep(0,d1)   //do a step on motor
+                            bc.makeStep(0,d1)   //do a step on motor
                         }
 
                         a2 += s2            // add steps to do to the counter
                         if(a2>=steps){      // rotates only if counter is bigger or equal biggest number of steps
                             a2 -= steps     // subtract biggest number of steps from counter
-                            //bc.makeStep(1,d2) //do a step on motor
+                            bc.makeStep(1,d2) //do a step on motor
                         }
                         doStep()
                     } else {
-                        console.log('-------------------- bc.rotateBoth done!')
+                        //console.log('-------------------- bc.rotateBoth done!')
                         if (callback != undefined) callback()
                     }
                 }, bc.baseDelay)
@@ -435,6 +435,7 @@ var BotController = (cfg) => {
             bc.drawPath(bc.paths.shift())
         } else {
             console.log("Done drawing all the paths. :)")
+            bc.moveTo(0,0);
         }
     }
 
