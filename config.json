@@ -15,7 +15,7 @@
   ],
   "servo": {
     "Min": 1600,
-    "Max": 2300,
+    "Max": 2000,
     "swap": true
   },
   "penPauseDelay": 100,
