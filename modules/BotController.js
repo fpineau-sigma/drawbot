@@ -9,6 +9,8 @@ if (isPi()) {
 var cBezier = require('adaptive-bezier-curve')
 var qBezier = require('adaptive-quadratic-curve')
 var svgpath = require('svgpath');
+const path = require('path');
+const fs = require('fs');
 const {parseSVG, makeAbsolute} = require('svg-path-parser');
 var arcToBezier = require('./arcToBezier');
 var svgpath = require('svgpath');
@@ -271,8 +273,8 @@ var BotController = (cfg) => {
             } else {
                 // paused!
                 console.log('paused!'); console.log(bc.paused);
-                bc.paused = false
-                console.log('paused?'); console.log(bc.paused);
+                //bc.paused = false
+                //console.log('paused?'); console.log(bc.paused);
             }
         }
         doStep()
@@ -412,6 +414,28 @@ var BotController = (cfg) => {
            // bc.drawPath.doCommand();
         }
         //bc.paused = true
+    }
+
+    bc.filelist = (filepath, order, limit) => {
+        //console.log(filepath);
+        //console.log(order);
+        //console.log(limit);
+
+        var drewiefiles = [];
+        const directoryPath = path.join(__dirname, filepath);
+        fs.readdir(directoryPath, function (err, files) {
+            if (err) {
+                return console.log('Unable to scan directory: ' + err);
+            } 
+            files.forEach(function (file) {
+                drewiefiles.push(file);
+            });
+
+            if (bc.localio) bc.localio.emit('drewieFiles', {
+                drewiefiles
+            })
+        });
+
     }
 
     bc.clearcanvas = () => {

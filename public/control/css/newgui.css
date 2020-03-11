@@ -40,6 +40,10 @@ button {
 	background: hsla(0, 0%, 100%, .2)
 }
 
+button.filelist {
+	width: 70vw
+}
+
 button.active,
 button:hover {
 	opacity: 1

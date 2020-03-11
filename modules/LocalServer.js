@@ -70,6 +70,11 @@ var LocalServer = (cfg, controller) => {
         socket.on('moveto',function(data){
 		    c.moveTo(data.x,data.y)
         })
+
+        socket.on('filelist',function(data){
+            //console.log(data);
+            c.filelist(data.folder, data.order, data.limit)
+        })
         
         socket.on('getDXY', function(data){
             socket.emit('DXY',{

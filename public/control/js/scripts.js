@@ -7,7 +7,7 @@ var movePage = document.querySelector('#view_move');
 var progressPage = document.querySelector('#view_progress');
 var settingsAside = document.querySelector('#aside_settings');
 var moveAside = document.querySelector('#aside_move');
-
+var selectFilePage = document.querySelector('#view_folder');
 
 var folderButton = document.querySelector('#button_folder');
 var settingsButton = document.querySelector('#button_settings');
@@ -77,6 +77,12 @@ homeButton.addEventListener('click', function(e) {
       togglePen();
   });*/
   
+  folderButton.addEventListener('click', function(e) {
+      toggleActiveState(folderButton);
+      toggleSelectFile();
+      var data = {folder:'../public/files/', order:'asc', limit:'5'}
+      socket.emit('filelist', data);
+  });  
   settingsButton.addEventListener('click', function(e) {
       toggleActiveState(settingsButton);
       toggleSettings();
@@ -90,11 +96,22 @@ homeButton.addEventListener('click', function(e) {
     toggleProgress();
   });
 
+  function toggleSelectFile() {
+    settingsPage.classList.remove('on');
+    movePage.classList.remove('on');
+    progressPage.classList.remove('on');
+    selectFilePage.classList.add('on');
+    
+    settingsAside.classList.remove('on');
+    moveAside.classList.remove('on');
+  }
+
   function toggleSettings() {
     settingsPage.classList.add('on');
     movePage.classList.remove('on');
     progressPage.classList.remove('on');
-  
+    selectFilePage.classList.remove('on');
+    
     settingsAside.classList.add('on');
     moveAside.classList.remove('on');
   }
@@ -103,6 +120,7 @@ homeButton.addEventListener('click', function(e) {
       settingsPage.classList.remove('on');
       movePage.classList.add('on');
       progressPage.classList.remove('on');
+      selectFilePage.classList.remove('on');
   
       settingsAside.classList.remove('on');
       moveAside.classList.add('on');
@@ -112,6 +130,7 @@ homeButton.addEventListener('click', function(e) {
       settingsPage.classList.remove('on');
       movePage.classList.remove('on');
       progressPage.classList.add('on');
+      selectFilePage.classList.remove('on');
   
       settingsAside.classList.remove('on');
       moveAside.classList.remove('on');
@@ -123,11 +142,6 @@ homeButton.addEventListener('click', function(e) {
     });
     button.classList.add('active');
   }
-
-/*var closeButton2 = document.querySelector('.close2');
-closeButton2.addEventListener('click', function (e) {
-    toggleProgress();
-});*/
 
 /*var clearcanvasButton = document.querySelector('.clearcanvas');
 clearcanvasButton.addEventListener('click', function (e) {
@@ -144,6 +158,21 @@ var ri = radialIndicator('#percentage', {
 })
 socket.on('progressUpdate', function (data) {
     ri.animate(data.percentage)
+});
+
+socket.on('drewieFiles', function (data) {
+    var filelist=document.getElementById('filelist');
+    //console.log(data.drewiefiles);
+    var htmlbuffer = "";
+    for(var i=0;i<data.drewiefiles.length;i++){
+        htmlbuffer += '<button class="filelist">';
+        htmlbuffer += '<span class="drawfile" onClick="readFile(\''+data.drewiefiles[i].trim()+'\')" data-filename="'+data.drewiefiles[i]+'" id="file_'+i+'">';
+        htmlbuffer += data.drewiefiles[i].replace(".svg","");
+        htmlbuffer += '</span>';
+        htmlbuffer += '</button>';
+        
+    }
+    filelist.innerHTML=htmlbuffer;
 });
 
 socket.on('penState', function (data) {
@@ -417,7 +446,7 @@ dropTarget.ondrop = function (e) {
     console.log('dropped!');
     var file = e.dataTransfer.files[0];
     console.log(file);
-
+        
     var origcanvas = document.getElementById("originCanvas");
     var origctx = origcanvas.getContext("2d");
 
@@ -433,5 +462,33 @@ dropTarget.ondrop = function (e) {
         socket.emit('drawart', data);
     };
     reader.readAsText(file);
+
     return false;
 }
+
+readFile = function(filename){
+    console.log(filename);
+    //const directoryPath = path.join(__dirname, "/files/");
+    var file = "/files/"+filename;
+    console.log(file);
+    drawfile(file);
+}
+
+drawfile = function(file){
+    var origcanvas = document.getElementById("originCanvas");
+    var origctx = origcanvas.getContext("2d");
+
+    var reader = new FileReader();
+    reader.onload = function () {
+        var svgPath = reader.result;
+        console.log(svgPath);
+        origctx.drawSvg(svgPath, 0, 0, 480, 600)
+
+        var data = {
+            content: svgPath
+        }
+        socket.emit('drawart', data);
+    };
+    reader.readAsText(file);
+}
+
