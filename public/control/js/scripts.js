@@ -467,28 +467,13 @@ dropTarget.ondrop = function (e) {
 }
 
 readFile = function(filename){
-    console.log(filename);
-    //const directoryPath = path.join(__dirname, "/files/");
-    var file = "/files/"+filename;
-    console.log(file);
-    drawfile(file);
+    fetch(`/files/${filename}`)
+        .then(res => res.text())
+        .then(svgPath => {
+            var origcanvas = document.getElementById("originCanvas");
+            var origctx = origcanvas.getContext("2d");
+            origctx.drawSvg(svgPath, 0, 0, 480, 600);
+            var data = { content: svgPath };
+            socket.emit('drawart', data);
+        })
 }
-
-drawfile = function(file){
-    var origcanvas = document.getElementById("originCanvas");
-    var origctx = origcanvas.getContext("2d");
-
-    var reader = new FileReader();
-    reader.onload = function () {
-        var svgPath = reader.result;
-        console.log(svgPath);
-        origctx.drawSvg(svgPath, 0, 0, 480, 600)
-
-        var data = {
-            content: svgPath
-        }
-        socket.emit('drawart', data);
-    };
-    reader.readAsText(file);
-}
-
