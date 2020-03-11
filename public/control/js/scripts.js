@@ -447,29 +447,36 @@ dropTarget.ondrop = function (e) {
     var file = e.dataTransfer.files[0];
     console.log(file);
 
+    setPreviewUrl(URL.createObjectURL(file));
+
+    var reader = new FileReader();
+    reader.onload = ({ target: { result: content } }) => socket.emit('drawart', { content });
+    reader.readAsText(file);
+
     return false;
 }
 
-readFile = function(filename){
-    const svgPath = `/files/${filename}`;
-    const preview = document.getElementById('preview');
-    preview.src = svgPath;
+function setPreviewUrl(url) {
+    progressButton.click();
 
     const progress = document.getElementById('progress');
     progress.getContext('2d').clearRect(0, 0, progress.width, progress.height);
 
     const crosshair = document.getElementById('crosshair');
     crosshair.getContext('2d').clearRect(0, 0, crosshair.width, crosshair.height);
-    
-    progressButton.click();
 
-    fetch(svgPath)
-        .then(res => res.text())
-        .then(content => {
-            const { naturalWidth: width, naturalHeight: height } = preview;
-            progress.width = crosshair.width = width;
-            progress.height = crosshair.height = height;
+    const preview = document.getElementById('preview');
 
-            socket.emit('drawart', { content });
-        })
+    preview.src = url;
+    preview.addEventListener('load', () => {
+        const { naturalWidth: width, naturalHeight: height } = preview;
+        progress.width = crosshair.width = width;
+        progress.height = crosshair.height = height;    
+    }, { once: true });
+}
+
+readFile = function(filename){
+    const svgPath = `/files/${filename}`;
+    setPreviewUrl(svgPath);
+    fetch(svgPath).then(res => res.text()).then(content => socket.emit('drawart', { content }));
 }
