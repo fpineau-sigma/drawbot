@@ -470,13 +470,13 @@ var BotController = (cfg) => {
         var drawingScale = config.drawingScale/100;
         console.log("drawingScale: "+drawingScale);
 
-        if(drawingScale != 1){
-            var transformed = svgpath(pathString).scale(drawingScale).toString();
-        }else{
-            var transformed = pathString;
-        }
+        //if(drawingScale != 1){
+        //    var transformed = svgpath(pathString).scale(drawingScale).toString();
+        //}else{
+        //    var transformed = pathString;
+        //}
 
-        var commands = parseSVG(transformed);
+        var commands = parseSVG(pathString);
 		makeAbsolute(commands);
         var cmdCount = commands.length
 		console.log(commands);
@@ -502,6 +502,8 @@ var BotController = (cfg) => {
                     //console.log("Drawing-scale: " + drawingScale);
                     //var myx = checkValue(cmd.x);
                     //var myy = checkValue(cmd.y);
+                    var tox = checkValue(bc.pos.x)
+                    var toy = checkValue(bc.pos.y)
 
                     cmdIndex++
                     var percentage = Math.round((cmdIndex / cmdCount) * 100)
