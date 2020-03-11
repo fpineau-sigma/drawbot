@@ -472,7 +472,7 @@ var BotController = (cfg) => {
 
         //if(drawingScale != 1){
         //    var transformed = svgpath(pathString).scale(drawingScale).toString();
-        }else{
+        //}else{
         //    var transformed = pathString;
         //}
 
