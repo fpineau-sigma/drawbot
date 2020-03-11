@@ -220,14 +220,7 @@
             font-weight: normal;
             color:gray;
         }
-        #connection{
-            color:lightgray;
-            display:block;
-            position:absolute;
-            left:48vw;
-            top:9vw;
-            text-align: center;
-        }
+
         .disconnected{
             color:red !important;
         }
@@ -237,15 +230,25 @@
         .connected{
             color:green !important;
         }
+
+        #connection{
+            color:lightgray;
+            display:block;
+            position:absolute;
+            left:48vw;
+            top:18vh;
+            text-align: center;
+        }
+
         #percentage{
             display:flex;
             align-items: center;
             justify-content: center;
             position:absolute;
-            width:25vw;
-            height:25vw;
-            top:115vw;
-            right:2vw;
+            width:10vw;
+            height:10vw;
+            top:44vw;
+            right:83vh;
         }
 
         #positionCanvas {

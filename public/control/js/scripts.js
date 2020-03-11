@@ -191,13 +191,13 @@ function crossHair(x,y,pen) {
 }
 
   multiplierTenButton.addEventListener('click', function(e) {
-    toggleMultiplier(10);
+    toggleMultiplier(100);
   });
   multiplierOneButton.addEventListener('click', function(e) {
-    toggleMultiplier(1);
+    toggleMultiplier(10);
   });
   multiplierOnehundredButton.addEventListener('click', function(e) {
-    toggleMultiplier(100);
+    toggleMultiplier(1000);
   });
 
   function toggleMultiplier(amount = 1){
