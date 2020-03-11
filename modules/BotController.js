@@ -502,6 +502,8 @@ var BotController = (cfg) => {
                     //console.log("Drawing-scale: " + drawingScale);
                     //var myx = checkValue(cmd.x);
                     //var myy = checkValue(cmd.y);
+                    var tox = checkValue(bc.pos.x)
+                    var toy = checkValue(bc.pos.y)
 
                     cmdIndex++
                     var percentage = Math.round((cmdIndex / cmdCount) * 100)
