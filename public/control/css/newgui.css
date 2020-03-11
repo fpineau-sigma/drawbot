@@ -66,9 +66,9 @@ button svg {
 }
 
 :root {
-	--screen-width: 100vw;
+	--screen-width: 320px;
 	--screen-height: 75vw;
-	--screen-height: 100vh;
+	--screen-height: 240px;
 	--title-height: calc(var(--screen-height)*0.1);
 	--button-size: calc(var(--screen-height)*0.15);
 	--margin: calc(var(--screen-height)*0.0125);
@@ -76,7 +76,10 @@ button svg {
 }
 
 body {
-	margin: 0
+	margin: 0;
+	overflow: hidden;
+	width: var(--screen-width);
+	height: var(--screen-height);
 }
 
 #app {
