@@ -29,7 +29,7 @@ var downButton = document.querySelector('#button_arrow_down');
 
 var connectionIndicator = document.querySelector('#connection')
 
-toggleMultiplier(10);
+toggleMultiplier(100);
 
 var socket = io.connect('/');
 socket.on('connected', function (data) {
@@ -204,20 +204,20 @@ function crossHair(x,y,pen) {
     //console.log(amount)
     stepMultiplier = amount;
     switch (amount){
-      case 1:
+      case 10:
         multiplierOneButton.classList.add("act");
         multiplierTenButton.classList.remove("act");
         multiplierOnehundredButton.classList.remove("act");
         stepMultiplier = amount;
         break;
 
-      case 10:
+      case 100:
         multiplierOneButton.classList.remove("act");
         multiplierTenButton.classList.add("act");
         multiplierOnehundredButton.classList.remove("act");
         break;
 
-      case 100:
+      case 1000:
         multiplierOneButton.classList.remove("act");
         multiplierTenButton.classList.remove("act");
         multiplierOnehundredButton.classList.add("act");
