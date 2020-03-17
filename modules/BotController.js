@@ -14,7 +14,6 @@ const fs = require('fs');
 const {parseSVG, makeAbsolute} = require('svg-path-parser');
 var arcToBezier = require('./arcToBezier');
 var svgpath = require('svgpath');
-const StepperDriver = require('./A4988');
 
 var currentX = 0;
 var currentY = 0;
@@ -498,17 +497,13 @@ var BotController = (cfg) => {
 
                     console.log("Command-index: " + cmdIndex);
                     console.log("Command-count: " + cmdCount);
-                    drawingScale = config.drawingScale / 100;
-                    //console.log("Drawing-scale: " + drawingScale);
-                    //var myx = checkValue(cmd.x);
-                    //var myy = checkValue(cmd.y);
+
                     var tox = checkValue(bc.pos.x)
                     var toy = checkValue(bc.pos.y)
 
                     cmdIndex++
                     var percentage = Math.round((cmdIndex / cmdCount) * 100)
-                    //console.log("command"+cmd)
-                    //console.log(percentage + '%')
+
                     if (bc.client) bc.client.emit('progressUpdate', {
                         botID: bc._BOT_ID,
                         percentage: percentage
