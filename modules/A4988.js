@@ -1,6 +1,12 @@
 //goal is to create a function that varies the speed based on the steps in order to have the motors finish at the same time
 // or maybe create a function with already calculated speed/steps/motorpin as parameters and execute different instances for every motor
 
+// infos
+// pigpio nodejs wrapper https://github.com/fivdi/pigpio (look for wave generation)
+// pigpio base library in c which is on the raspberry http://abyz.me.uk/rpi/pigpio/index.html
+// PWM and Duty cycle in general:  https://www.instructables.com/id/Arduino-Hardware-PWM-for-stepper-motor-drives/ 
+
+
 const pigpio = require('pigpio');
 const Gpio = pigpio.Gpio;
 
@@ -36,7 +42,7 @@ pigpio.waveClear();                                       // clear all defined w
 let leftWaveForm = [];
 let rightWaveForm = [];
 
-for (let x = 0; x < 2; x++) {                             // define wave (easy here just ONE on off pulse with delay)
+for (let x = 0; x < 2; x++) {                             // define wave (easy here just ONE on off pulse with delay - duty cycle 50%)
     if (x % 2 === 0) {
         leftWaveForm.push({ gpioOn: stepPinL, gpioOff: 0, usDelay: speedL });
     } else {
