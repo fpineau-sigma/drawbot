@@ -25,18 +25,31 @@ var LocalServer = (cfg, controller) => {
     // Configuration de la route permettant l'upload de fichiers
     app.post('/api/fichiers', function (req, res) {
         var busboy = new Busboy({ headers: req.headers });
-        busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-     
-          var saveTo = path.join(__dirname, '../public/files/' + filename);
-          file.pipe(fs.createWriteStream(saveTo));
+        busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+
+            file.on('data', function (data) {
+                // Get whole svg, extract all path tags and concatenate them
+                console.log("###########" + data.length)
+                var $ = cheerio.load(data, { xmlMode: true })
+                var fullpath = ''
+                $('path').each(function () {
+                    var d = $(this).attr('d');
+                    fullpath += d.replace(/\s+/g, ' ') + ' '
+                })
+
+                c.paths = []
+                c.drawingPath = false
+                c.addPath(fullpath.trim())
+                //console.log(fullpath.trim())
+            });
         });
-     
-        busboy.on('finish', function() {
-          res.writeHead(200, { 'Connection': 'close' });
-          res.end("Import du fichier effectuÃ©");
+
+        busboy.on('finish', function () {
+            res.writeHead(200, { 'Connection': 'close' });
+            res.end("Import du fichier effectuÃ©");
         });
-         
-        return req.pipe(busboy);    
+
+        return req.pipe(busboy);
     });
 
     app.use(express.static('public'))
@@ -44,9 +57,9 @@ var LocalServer = (cfg, controller) => {
     io.on('connection', function (socket) {
         console.log('connection!')
         socket.emit('connected', { hello: 'world' })
-        socket.emit('botConnectionStatus', { connected:true })
+        socket.emit('botConnectionStatus', { connected: true })
 
-        socket.on('pen',function(data){
+        socket.on('pen', function (data) {
             c.pen(data.up)
         })
 
@@ -56,10 +69,10 @@ var LocalServer = (cfg, controller) => {
             //c.moveRelative(data.x, data.y)
         })
 
-        socket.on('drawpath',function(data){
+        socket.on('drawpath', function (data) {
             c.addPath(data.path)
         })
-        socket.on('drawart',function(data){
+        socket.on('drawart', function (data) {
             // Get whole svg, extract all path tags and concatenate them
             var $ = cheerio.load(data.content, { xmlMode: true })
             var fullpath = ''
@@ -71,52 +84,52 @@ var LocalServer = (cfg, controller) => {
             c.paths = []
             c.drawingPath = false
             c.addPath(fullpath.trim())
-			//console.log(fullpath.trim())
+            //console.log(fullpath.trim())
 
         })
-        socket.on('setStartPos',function(data){
+        socket.on('setStartPos', function (data) {
             c.setStartPos(data)
         })
-        socket.on('drawingScale',function(data){
+        socket.on('drawingScale', function (data) {
             c.setDrawingScale(data.drawingScale);
             console.log("setscale:" + data.drawingScale)
         })
 
-        socket.on('setD',function(data){
+        socket.on('setD', function (data) {
             console.log(data)
             c.setD(Number(data.d))
         })
 
-        socket.on('moveto',function(data){
-		    c.moveTo(data.x,data.y)
+        socket.on('moveto', function (data) {
+            c.moveTo(data.x, data.y)
         })
 
-        socket.on('filelist',function(data){
+        socket.on('filelist', function (data) {
             //console.log(data);
             c.filelist(data.folder, data.order, data.limit)
         })
-        
-        socket.on('getDXY', function(data){
-            socket.emit('DXY',{
-              d: c._D,
-              x: c.startPos.x,
-              y: c.startPos.y,
-              s: c.drawingScale,
-              limx: c.limits.x,
-              limy: c.limits.y,
-              strings: c.startStringLengths
-          })
+
+        socket.on('getDXY', function (data) {
+            socket.emit('DXY', {
+                d: c._D,
+                x: c.startPos.x,
+                y: c.startPos.y,
+                s: c.drawingScale,
+                limx: c.limits.x,
+                limy: c.limits.y,
+                strings: c.startStringLengths
+            })
         })
 
-        socket.on('pause', function(data){
+        socket.on('pause', function (data) {
             c.pause()
         })
 
-        socket.on('reboot', function(data){
+        socket.on('reboot', function (data) {
             c.reboot()
         })
 
-        socket.on('clearCanvas', function(data){
+        socket.on('clearCanvas', function (data) {
             c.clearcanvas()
         })
 
@@ -125,23 +138,23 @@ var LocalServer = (cfg, controller) => {
     })
 
     ls.start = () => {
-        server.listen(config.localPort, function(){
-            console.log('listening on port '+config.localPort+'...')
+        server.listen(config.localPort, function () {
+            console.log('listening on port ' + config.localPort + '...')
             console.log('preparing pen...')
-            
 
-            let pentest = new Promise(function(resolve,reject){
-                setTimeout(() => resolve(1),1000);
+
+            let pentest = new Promise(function (resolve, reject) {
+                setTimeout(() => resolve(1), 1000);
             })
-            pentest.then(function(result) {
+            pentest.then(function (result) {
                 c.pen(1);
                 return result;
             });
-            pentest.then(function(result) {
+            pentest.then(function (result) {
                 c.pen(0);
                 return result;
             });
-            pentest.then(function(result) {
+            pentest.then(function (result) {
                 c.pen(1);
                 return result;
             });
