@@ -4,9 +4,12 @@
 
 var express = require('express')
 var app = express()
+var Busboy = require('busboy')
 var server = require('http').Server(app)
 var io = require('socket.io')(server)
 var cheerio = require('cheerio')
+var path = require('path')
+var fs = require('fs')
 
 var LocalServer = (cfg, controller) => {
     var c = controller
@@ -18,6 +21,23 @@ var LocalServer = (cfg, controller) => {
         server: server,
         io: io
     }
+
+    // Configuration de la route permettant l'upload de fichiers
+    app.post('/api/fichiers', function (req, res) {
+        var busboy = new Busboy({ headers: req.headers });
+        busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+     
+          var saveTo = path.join(__dirname, '../public/files/' + filename);
+          file.pipe(fs.createWriteStream(saveTo));
+        });
+     
+        busboy.on('finish', function() {
+          res.writeHead(200, { 'Connection': 'close' });
+          res.end("Import du fichier effectuÃ©");
+        });
+         
+        return req.pipe(busboy);    
+    });
 
     app.use(express.static('public'))
 
